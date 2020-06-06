@@ -1,11 +1,11 @@
 public class NBody {
-    private static double readRadius(String s) {
+    public static double readRadius(String s) {
         In in = new In(s);
         in.readInt();
         return in.readDouble();
     }
 
-    private static Planet[] readPlanets(String s) {
+    public static Planet[] readPlanets(String s) {
         In in = new In(s);
         int length = in.readInt();
         in.readDouble();
