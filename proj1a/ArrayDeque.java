@@ -97,7 +97,6 @@ public class ArrayDeque<T> {
             firstPosition = -1;
         }
         T temp = array[firstPosition + 1];
-        array[firstPosition + 1] = null;
         firstPosition += 1;
         size -= 1;
         if (size <= array.length / 4) {
@@ -114,7 +113,6 @@ public class ArrayDeque<T> {
             lastPosition = array.length;
         }
         T temp = array[lastPosition - 1];
-        array[lastPosition - 1] = null;
         lastPosition -= 1;
         size -= 1;
         if (size <= array.length / 4) {
