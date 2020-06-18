@@ -32,7 +32,7 @@ public class ArrayDeque<T> {
         if (firstPosition == array.length - 1) {
             firstPosition = -1;
         }
-        if (size - array.length + firstPosition + 1 <= 0 ) {
+        if (size - array.length + firstPosition + 1 <= 0) {
             System.arraycopy(array, firstPosition + 1, temp, 1, size);
         } else {
             System.arraycopy(array, firstPosition + 1, temp, 1, array.length - firstPosition - 1);
