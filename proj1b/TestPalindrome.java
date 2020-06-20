@@ -22,10 +22,14 @@ public class TestPalindrome {
         String b = "Car";
         String c = "B3a66a3B";
         String d = "QwEr9TyyT9rEwQ";
+        String e = "Q9nnn9q";
+        String f = "Q9Ff9Q";
         assertTrue(palindrome.isPalindrome(a));
         assertFalse(palindrome.isPalindrome(b));
         assertTrue(palindrome.isPalindrome(c));
         assertTrue(palindrome.isPalindrome(d));
+        assertFalse(palindrome.isPalindrome(e));
+        assertFalse(palindrome.isPalindrome(f));
     }
 
     @Test

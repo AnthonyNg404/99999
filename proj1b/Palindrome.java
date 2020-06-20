@@ -1,8 +1,6 @@
-import com.sun.source.tree.BreakTree;
-
 public class Palindrome {
 
-    static Palindrome palindrome = new Palindrome();
+    private static Palindrome palindrome = new Palindrome();
 
     public Deque<Character> wordToDeque(String word) {
         Deque<Character> deque = new LinkedListDeque<Character>();
