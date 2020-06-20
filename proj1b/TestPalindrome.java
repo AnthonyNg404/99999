@@ -30,6 +30,12 @@ public class TestPalindrome {
         assertTrue(palindrome.isPalindrome(d));
         assertFalse(palindrome.isPalindrome(e));
         assertFalse(palindrome.isPalindrome(f));
+        assertTrue(palindrome.isPalindrome(" "));
+        assertTrue(palindrome.isPalindrome(""));
+        assertTrue(palindrome.isPalindrome("a"));
+        assertTrue(palindrome.isPalindrome("bb"));
+        assertTrue(palindrome.isPalindrome("11"));
+        assertTrue(palindrome.isPalindrome("1"));
     }
 
     @Test
