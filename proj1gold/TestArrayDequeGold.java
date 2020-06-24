@@ -47,14 +47,11 @@ public class TestArrayDequeGold {
     public void testRemoveFirst() {
         StudentArrayDeque<Integer> sad4 = new StudentArrayDeque<>();
         ArrayDequeSolution<Integer> ads4 = new ArrayDequeSolution<>();
-        String message = "\n";
         for (int j = 1; j < 10000; j++) {
             sad4.addFirst(j);
             ads4.addFirst(j);
-            message += "addFirst(" + j + ")" + "\n";
         }
         for (int i = 1; i < 10000; i++) {
-            message += "removeFirst()" + "\n";
             assertEquals(message, ads4.removeLast(), sad4.removeLast());
         }
     }
@@ -64,14 +61,11 @@ public class TestArrayDequeGold {
     public void testRemoveLast() {
         StudentArrayDeque<Integer> sad5 = new StudentArrayDeque<>();
         ArrayDequeSolution<Integer> ads5 = new ArrayDequeSolution<>();
-        String message = "\n";
         for (int j = 1; j < 10000; j++) {
             sad5.addLast(j);
             ads5.addLast(j);
-            message += "addLast(" + j + ")" + "\n";
         }
         for (int i = 1; i < 10000; i++) {
-            message += "removeLast()" + "\n";
             assertEquals(message, ads5.removeLast(), sad5.removeLast());
         }
     }
