@@ -67,7 +67,6 @@ public class TestArrayDequeGold {
             assertEquals(sad.get(0), ads.get(0));
         }
         for (int i = 0; i < 10000; i++) {
-            message += "removeLast()" + "\n";
             assertEquals(ads.removeLast(), sad.removeLast());
         }
 
