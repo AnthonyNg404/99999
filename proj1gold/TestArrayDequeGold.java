@@ -47,22 +47,15 @@ public class TestArrayDequeGold {
     public void testRemoveFirst() {
         StudentArrayDeque<Integer> sad4 = new StudentArrayDeque<>();
         ArrayDequeSolution<Integer> ads4 = new ArrayDequeSolution<>();
+        String message = "\n";
         for (int j = 1; j < 10000; j++) {
-            String message = "\n";
-            for (int i = 0; i < 2; i++) {
-                double random = StdRandom.uniform();
-                if (random < 0.5) {
-                    sad4.addLast(j + i);
-                    ads4.addLast(j + i);
-                    message += "addLast(" + j + i + ")" + "\n";
-                } else {
-                    sad4.addFirst(j + i);
-                    ads4.addFirst(j + i);
-                    message += "addFirst(" + j + i + ")" + "\n";
-                }
-            }
+            sad4.addFirst(j);
+            ads4.addFirst(j);
+            message += "addFirst(" + j + ")" + "\n";
+        }
+        for (int i = 1; i < 10000; i++) {
             message += "removeFirst()" + "\n";
-            assertEquals(message, ads4.removeFirst(), sad4.removeFirst());
+            assertEquals(message, ads4.removeLast(), sad4.removeLast());
         }
     }
 
@@ -71,22 +64,37 @@ public class TestArrayDequeGold {
     public void testRemoveLast() {
         StudentArrayDeque<Integer> sad5 = new StudentArrayDeque<>();
         ArrayDequeSolution<Integer> ads5 = new ArrayDequeSolution<>();
+        String message = "\n";
         for (int j = 1; j < 10000; j++) {
-            String message = "\n";
-            for (int i = 0; i < 2; i++) {
-                double random = StdRandom.uniform();
-                if (random < 0.5) {
-                    sad5.addLast(j + i);
-                    ads5.addLast(j + i);
-                    message += "addLast(" + j + i + ")" + "\n";
-                } else {
-                    sad5.addFirst(j + i);
-                    ads5.addFirst(j + i);
-                    message += "addFirst(" + j + i + ")" + "\n";
-                }
-            }
+            sad5.addLast(j);
+            ads5.addLast(j);
+            message += "addLast(" + j + ")" + "\n";
+        }
+        for (int i = 1; i < 10000; i++) {
             message += "removeLast()" + "\n";
             assertEquals(message, ads5.removeLast(), sad5.removeLast());
+        }
+    }
+
+    @Test
+    public void testRandom() {
+        StudentArrayDeque<Integer> sad6 = new StudentArrayDeque<>();
+        ArrayDequeSolution<Integer> ads6 = new ArrayDequeSolution<>();
+        for (int j = 1; j < 10000; j++) {
+            String message = "\n";
+            double random = StdRandom.uniform();
+            int add = StdRandom.uniform(1000);
+            if (random < 0.5) {
+                sad6.addLast(add);
+                ads6.addLast(add);
+                message += "addLast(" + add + ")" + "\n";
+            } else {
+                sad6.addFirst(add);
+                ads6.addFirst(add);
+                message += "addFirst(" + add + ")" + "\n";
+            }
+            message += "removeLast()" + "\n";
+            assertEquals(message, ads6.removeFirst(), sad6.removeFirst());
         }
     }
 }
