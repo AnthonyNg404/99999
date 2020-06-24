@@ -52,7 +52,7 @@ public class TestArrayDequeGold {
             ads4.addFirst(j);
         }
         for (int i = 1; i < 10000; i++) {
-            assertEquals(message, ads4.removeLast(), sad4.removeLast());
+            assertEquals(ads4.removeLast(), sad4.removeLast());
         }
     }
 
@@ -66,7 +66,7 @@ public class TestArrayDequeGold {
             ads5.addLast(j);
         }
         for (int i = 1; i < 10000; i++) {
-            assertEquals(message, ads5.removeLast(), sad5.removeLast());
+            assertEquals(ads5.removeLast(), sad5.removeLast());
         }
     }
 
