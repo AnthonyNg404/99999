@@ -8,10 +8,10 @@ public interface BoundedQueue<T> extends Iterable<T> {
     T dequeue();        // delete and return item from the front
     T peek();           // return (but do not delete) item from the front
     default boolean isEmpty() {  // is the buffer empty (fillCount equals zero)?
-        return this.fillCount() == 0;
+        return fillCount() == 0;
     }
     default boolean isFull() {  // is the buffer full (fillCount is same as capacity)?
-        return this.capacity() == this.fillCount();
+        return capacity() == fillCount();
     }
     Iterator<T> iterator();
 }
