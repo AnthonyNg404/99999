@@ -5,7 +5,8 @@ import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
 import edu.princeton.cs.introcs.StdDraw;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Font;
 import java.util.Random;
 
 public class Game {
@@ -51,9 +52,9 @@ public class Game {
         StdDraw.setFont(bigFont);
         StdDraw.text(WIDTH / 2, HEIGHT * 3 / 4, "CS61B: THE GAME");
         StdDraw.setFont(smallFont);
-        StdDraw.text(WIDTH / 2,HEIGHT / 2, "New Game   (N)");
-        StdDraw.text(WIDTH / 2,HEIGHT / 2 - 1, "Load Game   (L)");
-        StdDraw.text(WIDTH / 2,HEIGHT / 2 - 2, "Quit   (Q)");
+        StdDraw.text(WIDTH / 2, HEIGHT / 2, "New Game   (N)");
+        StdDraw.text(WIDTH / 2, HEIGHT / 2 - 1, "Load Game   (L)");
+        StdDraw.text(WIDTH / 2, HEIGHT / 2 - 2, "Quit   (Q)");
         StdDraw.show();
     }
 
@@ -69,9 +70,9 @@ public class Game {
         StdDraw.setFont(bigFont);
         StdDraw.text(WIDTH / 2, HEIGHT * 3 / 4, "CS61B: THE GAME");
         StdDraw.setFont(smallFont);
-        StdDraw.text(WIDTH / 2,HEIGHT / 2, "New Game   (N)");
-        StdDraw.text(WIDTH / 2,HEIGHT / 2 - 1, "Load Game   (L)");
-        StdDraw.text(WIDTH / 2,HEIGHT / 2 - 2, "Quit   (Q)");
+        StdDraw.text(WIDTH / 2, HEIGHT / 2, "New Game   (N)");
+        StdDraw.text(WIDTH / 2, HEIGHT / 2 - 1, "Load Game   (L)");
+        StdDraw.text(WIDTH / 2, HEIGHT / 2 - 2, "Quit   (Q)");
         int midWidth = WIDTH / 2;
         int qHeight = HEIGHT / 4;
         StdDraw.text(midWidth, qHeight, s);
