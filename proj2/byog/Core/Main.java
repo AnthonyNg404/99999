@@ -1,6 +1,7 @@
 package byog.Core;
 
 import byog.TileEngine.TETile;
+import edu.princeton.cs.introcs.StdDraw;
 
 /** This is the main entry point for the program. This class simply parses
  *  the command line inputs, and lets the byog.Core.Game class take over
@@ -8,7 +9,12 @@ import byog.TileEngine.TETile;
  */
 public class Main {
     public static void main(String[] args) {
-        if (args.length > 1) {
+        Game game = new Game();
+        game.ter.initialize(game.WIDTH, game.HEIGHT);
+        game.menu();
+        game.ter.renderFrame(game.playWithInputString(solicitNCharsInput(game)));
+
+        /**if (args.length > 1) {
             System.out.println("Can only have one argument - the input string");
             System.exit(0);
         } else if (args.length == 1) {
@@ -18,6 +24,32 @@ public class Main {
         } else {
             Game game = new Game();
             game.playWithKeyboard();
+        }*/
+    }
+
+    private static String solicitNCharsInput(Game game) {
+        String input = "";
+        game.drawCode(input);
+        int b = 0;
+        while (true) {
+            if (!StdDraw.hasNextKeyTyped()) {
+                continue;
+            }
+            char key = StdDraw.nextKeyTyped();
+            if (key != 'n' && key != 'N' && b == 0) {
+                continue;
+            }
+            if (key != 's' && key != 'S') {
+                b = 1;
+                input += String.valueOf(key);
+                game.drawCode(input);
+            } else {
+                input += String.valueOf(key);
+                game.drawCode(input);
+                StdDraw.pause(500);
+                break;
+            }
         }
+        return input;
     }
 }
