@@ -35,16 +35,12 @@ public class Game {
     public void playerControl(char key) {
         if (key == 's' || key == 'S') {
             finalWorldFrame = movePlayer(finalWorldFrame, 0);
-            ter.renderFrame(finalWorldFrame);
         } else if (key == 'd' || key == 'D') {
             finalWorldFrame = movePlayer(finalWorldFrame, 1);
-            ter.renderFrame(finalWorldFrame);
         } else if (key == 'w' || key == 'W') {
             finalWorldFrame = movePlayer(finalWorldFrame, 2);
-            ter.renderFrame(finalWorldFrame);
         } else if (key == 'a' || key == 'A') {
             finalWorldFrame = movePlayer(finalWorldFrame, 3);
-            ter.renderFrame(finalWorldFrame);
         }
         if (win) {
             winShow();
@@ -70,7 +66,6 @@ public class Game {
         code = input;
         String initCode = "";
         String moveCode = "";
-        ter.initialize(Game.WIDTH, Game.HEIGHT);
         for (int i = 0; i < input.length(); i++) {
             if (input.charAt(i) == 's' || input.charAt(i) == 'S') {
                 initCode += input.substring(i, i + 1);
@@ -122,6 +117,7 @@ public class Game {
             } else if (key != ':' && menuStatus == 2) {
                 input += String.valueOf(key);
                 playerControl(key);
+                ter.renderFrame(finalWorldFrame);
             } else if (key == ':' && menuStatus == 2) {
                 menuStatus = 3;
             } else if ((key == 'q' || key == 'Q') && menuStatus == 3) {
