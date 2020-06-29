@@ -1,5 +1,6 @@
 package byog.Core;
 
+import byog.SaveDemo.World;
 import byog.TileEngine.TERenderer;
 import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
@@ -8,6 +9,13 @@ import edu.princeton.cs.introcs.StdDraw;
 import java.awt.Color;
 import java.awt.Font;
 import java.util.Random;
+
+import java.io.File;
+import java.io.InputStreamReader;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileInputStream;
+import java.io.FileWriter;
 
 public class Game {
     TERenderer ter = new TERenderer();
@@ -18,6 +26,7 @@ public class Game {
     private int playerY;
     private boolean win = false;
     private String code;
+    private int menuStatus;
     private TETile[][] finalWorldFrame;
     /**
      * Method used for playing a fresh game. The game should start from the main menu.
@@ -77,33 +86,47 @@ public class Game {
         return finalWorldFrame;
     }
 
-    public void playWithKeyboard(int b) {
-        System.out.println(b);
-        String input = "N";
-        if (b != 1)  {
-            drawCode(input);
-        }
+    public void playWithKeyboard() {
+        String input = "";
+        menu();
         while (!win) {
             if (!StdDraw.hasNextKeyTyped()) {
                 continue;
             }
             char key = StdDraw.nextKeyTyped();
-            if ((key - '0' >= 0 && key - '0' <= 9) && b == 0) {
+            if ((key == 'l' || key == 'L') && menuStatus == 0) {
+                String save = loadWorld();
+                finalWorldFrame = playWithInputString(save);
+                menuStatus = 2;
+            } else if ((key == 'q' || key == 'Q') && menuStatus == 0) {
+                System.exit(0);
+            } else if ((key == 'n' || key == 'N') && menuStatus == 0) {
+                input += String.valueOf(key);
+                drawCode(input);
+                menuStatus = 1;
+            } else if ((key - '0' >= 0 && key - '0' <= 9) && menuStatus == 1) {
                 System.out.print(key + "  ");
                 input += String.valueOf(key);
                 drawCode(input);
-            } else if ((key == 's' || key == 'S') && b == 0) {
-                b = 1;
+            } else if ((key == 's' || key == 'S') && menuStatus == 1) {
+                menuStatus = 2;
                 System.out.print(key + "  ");
                 input += String.valueOf(key);
                 drawCode(input);
                 StdDraw.pause(500);
                 finalWorldFrame = initialize(seed(input));
                 ter.renderFrame(finalWorldFrame);
-            } else if (b == 1) {
+            } else if (key != ':' && menuStatus == 2) {
                 System.out.print(key + "  ");
                 input += String.valueOf(key);
                 playerControl(key);
+            } else if (key == ':' && menuStatus == 2) {
+                System.out.print(key + "  ");
+                menuStatus = 3;
+            } else if ((key == 'q' || key == 'Q') && menuStatus == 3 ) {
+                System.out.print(key + "  ");
+                saveWorld(input);
+                System.exit(0);
             }
         }
     }
@@ -641,6 +664,34 @@ public class Game {
             }
             return false;
         }
+    }
 
+    private static String loadWorld() {
+        try {
+            String pathName = "./world.txt";
+            File filename = new File(pathName);
+            InputStreamReader reader = new InputStreamReader(new FileInputStream(filename));
+            BufferedReader br = new BufferedReader(reader);
+            String line = "";
+            line = br.readLine();
+            return line;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    private static void saveWorld(String s) {
+        try {
+            File writeName = new File("./world.txt");
+            writeName.createNewFile();
+            BufferedWriter out = new BufferedWriter(new FileWriter(writeName));
+            out.write(s);
+            out.flush();
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
