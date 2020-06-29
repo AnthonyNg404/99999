@@ -26,8 +26,8 @@ public class Game {
     private int playerX;
     private int playerY;
     private boolean win = false;
-    private String code;
-    private int menuStatus;
+    private String code = "";
+    public int menuStatus;
     private TETile[][] finalWorldFrame;
     /**
      * Method used for playing a fresh game. The game should start from the main menu.
@@ -70,7 +70,6 @@ public class Game {
         code = input;
         String initCode = "";
         String moveCode = "";
-        System.out.println(input);
         ter.initialize(Game.WIDTH, Game.HEIGHT);
         for (int i = 0; i < input.length(); i++) {
             if (input.charAt(i) == 's' || input.charAt(i) == 'S') {
@@ -84,12 +83,16 @@ public class Game {
         for (int j = 0; j < moveCode.length(); j++) {
             playerControl(moveCode.charAt(j));
         }
+        menuStatus = 2;
         return finalWorldFrame;
     }
 
     public void playWithKeyboard() {
-        String input = "";
+        String input = code;
         menu();
+        if (menuStatus == 2) {
+            ter.renderFrame(finalWorldFrame);
+        }
         while (!win) {
             if (!StdDraw.hasNextKeyTyped()) {
                 continue;
@@ -97,6 +100,7 @@ public class Game {
             char key = StdDraw.nextKeyTyped();
             if ((key == 'l' || key == 'L') && menuStatus == 0) {
                 String save = loadWorld();
+                input = save;
                 finalWorldFrame = playWithInputString(save);
                 menuStatus = 2;
             } else if ((key == 'q' || key == 'Q') && menuStatus == 0) {
