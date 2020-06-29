@@ -27,7 +27,7 @@ public class Game {
     private int playerY;
     private boolean win = false;
     private String code = "";
-    public int menuStatus;
+    private int menuStatus;
     private TETile[][] finalWorldFrame;
     /**
      * Method used for playing a fresh game. The game should start from the main menu.
