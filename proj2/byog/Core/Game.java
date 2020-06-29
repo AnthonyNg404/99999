@@ -1,6 +1,5 @@
 package byog.Core;
 
-import byog.SaveDemo.World;
 import byog.TileEngine.TERenderer;
 import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
@@ -11,10 +10,12 @@ import java.awt.Font;
 import java.util.Random;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.FileInputStream;
 import java.io.FileWriter;
 
 public class Game {
@@ -73,12 +74,12 @@ public class Game {
         ter.initialize(Game.WIDTH, Game.HEIGHT);
         for (int i = 0; i < input.length(); i++) {
             if (input.charAt(i) == 's' || input.charAt(i) == 'S') {
-                initCode += input.substring(i, i+1);
+                initCode += input.substring(i, i + 1);
                 finalWorldFrame = initialize(seed(initCode));
                 moveCode = input.substring(i + 1);
                 break;
             }
-            initCode += input.substring(i, i+1);
+            initCode += input.substring(i, i + 1);
         }
         for (int j = 0; j < moveCode.length(); j++) {
             playerControl(moveCode.charAt(j));
@@ -105,26 +106,21 @@ public class Game {
                 drawCode(input);
                 menuStatus = 1;
             } else if ((key - '0' >= 0 && key - '0' <= 9) && menuStatus == 1) {
-                System.out.print(key + "  ");
                 input += String.valueOf(key);
                 drawCode(input);
             } else if ((key == 's' || key == 'S') && menuStatus == 1) {
                 menuStatus = 2;
-                System.out.print(key + "  ");
                 input += String.valueOf(key);
                 drawCode(input);
                 StdDraw.pause(500);
                 finalWorldFrame = initialize(seed(input));
                 ter.renderFrame(finalWorldFrame);
             } else if (key != ':' && menuStatus == 2) {
-                System.out.print(key + "  ");
                 input += String.valueOf(key);
                 playerControl(key);
             } else if (key == ':' && menuStatus == 2) {
-                System.out.print(key + "  ");
                 menuStatus = 3;
-            } else if ((key == 'q' || key == 'Q') && menuStatus == 3 ) {
-                System.out.print(key + "  ");
+            } else if ((key == 'q' || key == 'Q') && menuStatus == 3) {
                 saveWorld(input);
                 System.exit(0);
             }
@@ -328,11 +324,11 @@ public class Game {
     private TETile[][] addDoor(TETile[][] addDoor, Random seed) {
         int i = 0;
         int q = 0;
-        while (i == 0){
+        while (i == 0) {
             int x = seed.nextInt(WIDTH - 2) + 1;
             int y = seed.nextInt(HEIGHT - 2) + 1;
-            if (addDoor[x][y] == Tileset.WALL){
-                    if (addDoor[x + 1][y] == Tileset.FLOOR
+            if (addDoor[x][y] == Tileset.WALL) {
+                if (addDoor[x + 1][y] == Tileset.FLOOR
                         && addDoor[x - 1][y] == Tileset.NOTHING) {
                     q += 1;
                 } else if (addDoor[x - 1][y] == Tileset.FLOOR
@@ -357,10 +353,10 @@ public class Game {
 
     private TETile[][] addPlayer(TETile[][] addPlayer, Random seed) {
         int i = 0;
-        while (i == 0){
+        while (i == 0) {
             int x = seed.nextInt(WIDTH - 2) + 1;
             int y = seed.nextInt(HEIGHT - 2) + 1;
-            if (addPlayer[x][y] == Tileset.FLOOR){
+            if (addPlayer[x][y] == Tileset.FLOOR) {
                 addPlayer[x][y] = Tileset.PLAYER;
                 playerX = x;
                 playerY = y;
@@ -675,8 +671,12 @@ public class Game {
             String line = "";
             line = br.readLine();
             return line;
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            System.out.println("file not found");
+            System.exit(0);
+        } catch (IOException e) {
+            System.out.println(e);
+            System.exit(0);
         }
         return null;
     }
@@ -690,8 +690,12 @@ public class Game {
             out.write(s);
             out.flush();
             out.close();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            System.out.println("file not found");
+            System.exit(0);
+        } catch (IOException e) {
+            System.out.println(e);
+            System.exit(0);
         }
     }
 }
