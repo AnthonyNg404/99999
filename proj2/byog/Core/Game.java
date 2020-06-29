@@ -74,6 +74,7 @@ public class Game {
                 initCode += code.substring(i, i + 1);
                 finalWorldFrame = initialize(seed(initCode));
                 moveCode = code.substring(i + 1);
+                System.out.println(moveCode);
                 break;
             }
             initCode += code.substring(i, i + 1);
@@ -83,7 +84,7 @@ public class Game {
                     && (moveCode.charAt(j + 1) == 'q' || moveCode.charAt(j + 1) == 'Q')) {
                 code = code.substring(0, code.length() - 2);
                 saveWorld(code);
-                System.exit(0);
+                break;
             }
             playerControl(moveCode.charAt(j));
         }
