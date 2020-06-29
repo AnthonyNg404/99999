@@ -64,18 +64,27 @@ public class Game {
         // and return a 2D tile representation of the world that would have been
         // drawn if the same inputs had been given to playWithKeyboard().
         code = input;
+        if (input.charAt(0) == 'l' || input.charAt(0) == 'L') {
+            code = loadWorld() + input.substring(1);
+        }
         String initCode = "";
         String moveCode = "";
-        for (int i = 0; i < input.length(); i++) {
-            if (input.charAt(i) == 's' || input.charAt(i) == 'S') {
-                initCode += input.substring(i, i + 1);
+        for (int i = 0; i < code.length(); i++) {
+            if (code.charAt(i) == 's' || code.charAt(i) == 'S') {
+                initCode += code.substring(i, i + 1);
                 finalWorldFrame = initialize(seed(initCode));
-                moveCode = input.substring(i + 1);
+                moveCode = code.substring(i + 1);
                 break;
             }
-            initCode += input.substring(i, i + 1);
+            initCode += code.substring(i, i + 1);
         }
         for (int j = 0; j < moveCode.length(); j++) {
+            if (moveCode.charAt(j) == ':'
+                    && (moveCode.charAt(j + 1) == 'q' || moveCode.charAt(j + 1) == 'Q')) {
+                code = code.substring(0, code.length() - 2);
+                saveWorld(code);
+                System.exit(0);
+            }
             playerControl(moveCode.charAt(j));
         }
         menuStatus = 2;
@@ -97,6 +106,7 @@ public class Game {
                 String save = loadWorld();
                 input = save;
                 finalWorldFrame = playWithInputString(save);
+                ter.renderFrame(finalWorldFrame);
                 menuStatus = 2;
             } else if ((key == 'q' || key == 'Q') && menuStatus == 0) {
                 System.exit(0);
