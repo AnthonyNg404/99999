@@ -14,10 +14,31 @@ public class Game {
     /* Feel free to change the width and height. */
     public static final int WIDTH = 80;
     public static final int HEIGHT = 30;
+    private int playerX;
+    private int playerY;
+    private boolean win = false;
+    private String code;
+    private TETile[][] finalWorldFrame;
     /**
      * Method used for playing a fresh game. The game should start from the main menu.
      */
-    public void playWithKeyboard() {
+    public void playerControl(char key) {
+        if (key == 's' || key == 'S') {
+            finalWorldFrame = movePlayer(finalWorldFrame, 0);
+            ter.renderFrame(finalWorldFrame);
+        } else if (key == 'd' || key == 'D') {
+            finalWorldFrame = movePlayer(finalWorldFrame, 1);
+            ter.renderFrame(finalWorldFrame);
+        } else if (key == 'w' || key == 'W') {
+            finalWorldFrame = movePlayer(finalWorldFrame, 2);
+            ter.renderFrame(finalWorldFrame);
+        } else if (key == 'a' || key == 'A') {
+            finalWorldFrame = movePlayer(finalWorldFrame, 3);
+            ter.renderFrame(finalWorldFrame);
+        }
+        if (win) {
+            winShow();
+        }
     }
 
     /**
@@ -36,9 +57,57 @@ public class Game {
         // TO*DO: Fill out this method to run the game using the input passed in,
         // and return a 2D tile representation of the world that would have been
         // drawn if the same inputs had been given to playWithKeyboard().
-        TETile[][] finalWorldFrame = initialize(seed(input));
+        code = input;
+        String initCode = "";
+        String moveCode = "";
+        System.out.println(input);
+        ter.initialize(Game.WIDTH, Game.HEIGHT);
+        for (int i = 0; i < input.length(); i++) {
+            if (input.charAt(i) == 's' || input.charAt(i) == 'S') {
+                initCode += input.substring(i, i+1);
+                finalWorldFrame = initialize(seed(initCode));
+                moveCode = input.substring(i + 1);
+                break;
+            }
+            initCode += input.substring(i, i+1);
+        }
+        for (int j = 0; j < moveCode.length(); j++) {
+            playerControl(moveCode.charAt(j));
+        }
         return finalWorldFrame;
     }
+
+    public void playWithKeyboard(int b) {
+        System.out.println(b);
+        String input = "N";
+        if (b != 1)  {
+            drawCode(input);
+        }
+        while (!win) {
+            if (!StdDraw.hasNextKeyTyped()) {
+                continue;
+            }
+            char key = StdDraw.nextKeyTyped();
+            if ((key - '0' >= 0 && key - '0' <= 9) && b == 0) {
+                System.out.print(key + "  ");
+                input += String.valueOf(key);
+                drawCode(input);
+            } else if ((key == 's' || key == 'S') && b == 0) {
+                b = 1;
+                System.out.print(key + "  ");
+                input += String.valueOf(key);
+                drawCode(input);
+                StdDraw.pause(500);
+                finalWorldFrame = initialize(seed(input));
+                ter.renderFrame(finalWorldFrame);
+            } else if (b == 1) {
+                System.out.print(key + "  ");
+                input += String.valueOf(key);
+                playerControl(key);
+            }
+        }
+    }
+
 
     public void menu() {
         StdDraw.setCanvasSize(WIDTH * 16, HEIGHT * 16);
@@ -58,7 +127,7 @@ public class Game {
         StdDraw.show();
     }
 
-    public void drawCode(String s) {
+    private void drawCode(String s) {
         StdDraw.clear(Color.black);
         Font smallFont = new Font("Monaco", Font.PLAIN, 15);
         Font bigFont = new Font("Monaco", Font.BOLD, 30);
@@ -94,7 +163,6 @@ public class Game {
         StdDraw.pause(1000);
         return input;
     }*/
-
 
 
     private TETile[][] initialize(long seed) {
@@ -141,8 +209,144 @@ public class Game {
             }
         }
         init = walls(init);
+        init = addPlayer(init, random);
+        init = addDoor(init, random);
         return init;
     }
+
+    private void winShow() {
+        StdDraw.clear(Color.black);
+        Font bigFont = new Font("Monaco", Font.BOLD, 30);
+        StdDraw.setXscale(0, WIDTH);
+        StdDraw.setYscale(0, HEIGHT);
+        StdDraw.clear(Color.BLACK);
+        StdDraw.setPenColor(Color.white);
+        StdDraw.setFont(bigFont);
+        StdDraw.text(WIDTH / 2, HEIGHT / 2, "YOU LOSE! IDIOT!");
+        StdDraw.show();
+    }
+
+    private void win() {
+        win = true;
+    }
+
+    private TETile[][] checkWin(TETile[][] checkWin, int dir) {
+        switch (dir) {
+            case 0:
+                if (checkWin[playerX][playerY - 1] == Tileset.LOCKED_DOOR) {
+                    win();
+                }
+                return checkWin;
+            case 1:
+                if (checkWin[playerX + 1][playerY] == Tileset.LOCKED_DOOR) {
+                    win();
+                }
+                return checkWin;
+
+            case 2:
+                if (checkWin[playerX][playerY + 1] == Tileset.LOCKED_DOOR) {
+                    win();
+                }
+                return checkWin;
+
+            case 3:
+                if (checkWin[playerX - 1][playerY] == Tileset.LOCKED_DOOR) {
+                    win();
+                }
+                return checkWin;
+            default:
+                return checkWin;
+        }
+    }
+
+    private TETile[][] movePlayer(TETile[][] movePlayer, int dir) {
+        switch (dir) {
+            case 0:
+                if (movePlayer[playerX][playerY - 1] == Tileset.FLOOR) {
+                    movePlayer[playerX][playerY] = Tileset.FLOOR;
+                    movePlayer[playerX][playerY - 1] = Tileset.PLAYER;
+                    playerY = playerY - 1;
+                } else {
+                    checkWin(movePlayer, dir);
+                }
+                return movePlayer;
+            case 1:
+                if (movePlayer[playerX + 1][playerY] == Tileset.FLOOR) {
+                    movePlayer[playerX][playerY] = Tileset.FLOOR;
+                    movePlayer[playerX + 1][playerY] = Tileset.PLAYER;
+                    playerX = playerX + 1;
+                } else {
+                    checkWin(movePlayer, dir);
+                }
+                return movePlayer;
+            case 2:
+                if (movePlayer[playerX][playerY + 1] == Tileset.FLOOR) {
+                    movePlayer[playerX][playerY] = Tileset.FLOOR;
+                    movePlayer[playerX][playerY + 1] = Tileset.PLAYER;
+                    playerY = playerY + 1;
+                } else {
+                    checkWin(movePlayer, dir);
+                }
+                return movePlayer;
+            case 3:
+                if (movePlayer[playerX - 1][playerY] == Tileset.FLOOR) {
+                    movePlayer[playerX][playerY] = Tileset.FLOOR;
+                    movePlayer[playerX - 1][playerY] = Tileset.PLAYER;
+                    playerX = playerX - 1;
+                } else {
+                    checkWin(movePlayer, dir);
+                }
+                return movePlayer;
+            default:
+                return movePlayer;
+        }
+    }
+
+    private TETile[][] addDoor(TETile[][] addDoor, Random seed) {
+        int i = 0;
+        int q = 0;
+        while (i == 0){
+            int x = seed.nextInt(WIDTH - 2) + 1;
+            int y = seed.nextInt(HEIGHT - 2) + 1;
+            if (addDoor[x][y] == Tileset.WALL){
+                    if (addDoor[x + 1][y] == Tileset.FLOOR
+                        && addDoor[x - 1][y] == Tileset.NOTHING) {
+                    q += 1;
+                } else if (addDoor[x - 1][y] == Tileset.FLOOR
+                        && addDoor[x + 1][y] == Tileset.NOTHING) {
+                    q += 1;
+                }
+                if (addDoor[x][y + 1] == Tileset.FLOOR
+                        && addDoor[x][y - 1] == Tileset.NOTHING) {
+                    q += 1;
+                } else if (addDoor[x][y - 1] == Tileset.FLOOR
+                        && addDoor[x][y + 1] == Tileset.NOTHING) {
+                    q += 1;
+                }
+                if (q > 0) {
+                    addDoor[x][y] = Tileset.LOCKED_DOOR;
+                    i = 1;
+                }
+            }
+        }
+        return addDoor;
+    }
+
+    private TETile[][] addPlayer(TETile[][] addPlayer, Random seed) {
+        int i = 0;
+        while (i == 0){
+            int x = seed.nextInt(WIDTH - 2) + 1;
+            int y = seed.nextInt(HEIGHT - 2) + 1;
+            if (addPlayer[x][y] == Tileset.FLOOR){
+                addPlayer[x][y] = Tileset.PLAYER;
+                playerX = x;
+                playerY = y;
+                i = 1;
+            }
+        }
+        return addPlayer;
+    }
+
 
     private int find(RoomCache rc, int p) {
         int r = p;
@@ -365,8 +569,8 @@ public class Game {
 
 
     private TETile[][] rooms(TETile[][] addRoom, Random seed, RoomCache rc, int z) {
-        int x = seed.nextInt(WIDTH - 3) + 1;
-        int y = seed.nextInt(HEIGHT - 3) + 1;
+        int x = seed.nextInt(WIDTH - 2) + 1;
+        int y = seed.nextInt(HEIGHT - 2) + 1;
         int w = seed.nextInt(WIDTH / 10) + 1;
         int h = seed.nextInt(WIDTH / 10) + 1;
         rc.addLast(z, x, y, w, h, -1);
