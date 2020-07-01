@@ -1,55 +1,53 @@
 package hw2;
 
-public class PercolationStats {
-    private double total = 0;
-    private int count;
-    private int[] numberSet;
-    private double mean;
-    private double stdDev;
+import edu.princeton.cs.algs4.StdRandom;
+import edu.princeton.cs.algs4.StdStats;
 
-    // perform T independent experiments on an N-by-N grid
+public class PercolationStats {
+
+  // private int N;
+    private double[] data;
+
+
     public PercolationStats(int N, int T, PercolationFactory pf) {
-        count = T;
-        numberSet = new int[T];
-        for (int i = 0; i < T; i++) {
+        if (N <= 0 || T <= 0) {
+            throw new IllegalArgumentException();
+        }
+        data = new double[T];
+        for (int i = 0; i < T; i += 1) {
             Percolation p = pf.make(N);
             while (!p.percolates()) {
-                int x = (int) Math.round(Math.random() * N);
-                int y = (int) Math.round(Math.random() * N);
-                if (p.isOpen(x, y)) {
-                    p.open(x, y);
-                }
+                int row = StdRandom.uniform(N);
+                int col = StdRandom.uniform(N);
+                p.open(row, col);
             }
-            total += p.numberOfOpenSites();
-            numberSet[i] = p.numberOfOpenSites();
+            data[i] = (double) p.numberOfOpenSites() / (N * N);
         }
-        mean = mean();
-        stdDev = stddev();
     }
 
-    // sample mean of percolation threshold
     public double mean() {
-        mean = total / count;
-        return mean;
+        return StdStats.mean(data);
     }
 
-    // sample standard deviation of percolation threshold
     public double stddev() {
-        double sum = 0;
-        for (int num : numberSet) {
-            sum += Math.pow(num - mean, 2);
-        }
-        stdDev = Math.sqrt(sum / (count - 1));
-        return stdDev;
+        return StdStats.stddev(data);
     }
 
-    // low endpoint of 95% confidence interval
     public double confidenceLow() {
-        return mean - 1.96 * stdDev / Math.sqrt(count);
+        double mean = mean();
+        double stddev = stddev();
+        return mean - (1.96 * stddev) / Math.sqrt(data.length);
     }
 
-    // high endpoint of 95% confidence interval
     public double confidenceHigh() {
-        return mean + 1.96 * stdDev / Math.sqrt(count);
+        double mean = mean();
+        double stddev = stddev();
+        return mean + (1.96 * stddev) / Math.sqrt(data.length);
+    }
+
+    private static void main(String[] args) {
+        PercolationStats ps = new PercolationStats(30, 100, new PercolationFactory());
+        System.out.println("Low bound: " + ps.confidenceLow());
+        System.out.println("High bound: " + ps.confidenceHigh());
     }
 }

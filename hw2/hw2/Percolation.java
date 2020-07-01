@@ -3,138 +3,185 @@ package hw2;
 import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
 public class Percolation {
-    private WeightedQuickUnionUF siteOpen;
-    private WeightedQuickUnionUF siteFull;
-    private int dimension;
+
+    private final int BLOCKED = 0;
+    private final int OPEN = 1;
+
+    private final int[][] DIRECTION = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+
+    private int N;
+    private int siteCount;
+    private int[][] grid;
+    private WeightedQuickUnionUF ufTop;
+    private WeightedQuickUnionUF ufTopTottom;
 
 
-    // create N-by-N grid, with all sites initially blocked
     public Percolation(int N) {
         if (N <= 0) {
-            throw new IllegalArgumentException("N should be larger or equal to 0");
+            throw new IllegalArgumentException();
         }
-        siteOpen = new WeightedQuickUnionUF(N * N + 1);
-        siteFull = new WeightedQuickUnionUF(N * N);
-        dimension = N;
+        this.N = N;
+        this.siteCount = 0;
+        this.grid = new int[N][N];
+        this.ufTop = new WeightedQuickUnionUF(N * N + 1);
+        this.ufTopTottom = new WeightedQuickUnionUF(N * N + 2);
+        /* 2 extra points - start & end for speeding */
+        setupStartEnd();
     }
 
-    // open the site (row, col) if it is not open already
+    private int getTop() {
+        return N * N;
+    }
+    private int getBottom() {
+        return N * N + 1;
+    }
+    private void setupStartEnd() {
+        int start = getTop();
+        int end = getBottom();
+        for (int j = 0; j < N; j += 1) {
+            ufTop.union(toIndex(0, j), start);
+            ufTopTottom.union(toIndex(0, j), start);
+            ufTopTottom.union(toIndex(N - 1, j), end);
+        }
+    }
+
+    /**
+     * BLOCKED: 0
+     * OPEN: 1
+     * FULL: 2
+     */
     public void open(int row, int col) {
-        if (row < 0 || row >= dimension || col < 0 || col >= dimension) {
-            throw new IllegalArgumentException("row or col should be between 0 and N - 1");
+        checkIndex(row, col);
+        if (isOpen(row, col)) {
+            return;
         }
-        siteOpen.union(row * dimension + col + 1, 0);
-        //System.out.println(siteOpen.connected(row * dimension + col + 1, 0));
-        //System.out.println(siteOpen.find(row * dimension + col + 1));
-        if (col == 0) {
-            if (isOpen(row, col + 1)) {
-                //System.out.println("connect!" + row + "" + col);
-                siteFull.union(row * dimension + col, row * dimension + col + 1);
-            }
-        } else if (col == dimension - 1) {
-            if (isOpen(row, col - 1)) {
-                //System.out.println("connect!" + row + "" + col);
-                siteFull.union(row * dimension + col, row * dimension + col - 1);
-            }
-        } else {
-            if (isOpen(row, col + 1)) {
-                //System.out.println("connect!" + row + "" + col);
-                siteFull.union(row * dimension + col, row * dimension + col + 1);
-            }
-            if (isOpen(row, col - 1)) {
-                //System.out.println("connect!" + row + "" + col);
-                siteFull.union(row * dimension + col, row * dimension + col - 1);
-            }
-        }
-        if (row == 0) {
-            if (isOpen(row + 1, col)) {
-                //System.out.println("connect! " + row + " " + col + " down");
-                siteFull.union(row * dimension + col, (row + 1) * dimension + col);
-            }
-        } else if (row == dimension - 1) {
-            if (isOpen(row - 1, col)) {
-                //System.out.println("connect! " + row + " " + col + " up");
-                siteFull.union(row * dimension + col, (row - 1) * dimension + col);
-            }
-        } else {
-            if (isOpen(row + 1, col)) {
-                //System.out.println("connect! " + row + " " + col + " down");
-                siteFull.union(row * dimension + col, (row + 1) * dimension + col);
-            }
-            if (isOpen(row - 1, col)) {
-                //System.out.println("connect! " + row + " " + col + " up");
-                siteFull.union(row * dimension + col, (row - 1) * dimension + col);
+        grid[row][col] = OPEN; /* just open */
+        siteCount += 1;
+
+        // up / down / left / right
+        for (int[] dir : DIRECTION) {
+            int r = row + dir[0]; int c = col + dir[1];
+            if (validIndex(r, c) && isOpen(r, c)) {
+                int ind1 = toIndex(row, col);
+                int ind2 = toIndex(r, c);
+                ufTop.union(ind1, ind2);
+                ufTopTottom.union(ind1, ind2);
             }
         }
     }
 
-    // is the site (row, col) open?
     public boolean isOpen(int row, int col) {
-        if (row < 0 || row >= dimension || col < 0 || col >= dimension) {
-            throw new IllegalArgumentException("row or col should be between 0 and N - 1");
-        }
-        //System.out.println(siteOpen.find(row * dimension + col + 1) + "  !");
-        return siteOpen.connected(row * dimension + col + 1, 0);
+        checkIndex(row, col);
+        return grid[row][col] == OPEN;
     }
 
-    // is the site (row, col) full?
     public boolean isFull(int row, int col) {
-        if (row < 0 || row >= dimension || col < 0 || col >= dimension) {
-            throw new IllegalArgumentException("row or col should be between 0 and N - 1");
+        checkIndex(row, col);
+        if (N == 1) {
+            return isOpen(0, 0);
+        } else {
+            return isOpen(row, col) && ufTop.connected(getTop(), toIndex(row, col));
         }
-        for (int i = 0; i < dimension; i++) {
-            if (isOpen(0, i)) {
-                //System.out.println(siteFull.connected(12, 3));
-                if (siteFull.connected(row * dimension + col, i)) {
-                    return true;
-                }
-            }
-        }
-        return false;
+
+      // if (row == 0) {
+      //   return isOpen(row, col); /* open -> FULL; blocked -> Not FULL */
+      // }
+      // if (row == N - 1) {
+      //   return uf.connected(getTop(), ToIndex(row, col));
+      // }
+      //
+      // return uf.connected(getBottom(), ToIndex(row, col));
     }
 
-    // number of open sites
     public int numberOfOpenSites() {
-        return dimension * dimension + 1 - siteOpen.count();
+        return siteCount;
     }
 
-    // does the system percolate?
     public boolean percolates() {
-        for (int i = 0; i < dimension; i++) {
-            if (isOpen(dimension - 1, i)) {
-                if (isFull(dimension - 1, i)) {
-                    return true;
+        if (N == 1) {
+            return isOpen(0, 0);
+        } else {
+            return ufTopTottom.connected(getTop(), getBottom());
+        }
+    }
+
+    private int toIndex(int row, int col) {
+        return N * row + col;
+    }
+
+    private boolean validIndex(int row, int col) {
+        if (row < 0 || row > N - 1) {
+            return false;
+        }
+        if (col < 0 || col > N - 1) {
+            return false;
+        }
+        return true;
+    }
+
+    private void checkIndex(int row, int col) {
+        if (!validIndex(row, col)) {
+            throw new IndexOutOfBoundsException();
+        }
+        if (!validIndex(row, col)) {
+            throw new IndexOutOfBoundsException();
+        }
+    }
+
+    private void print() {
+        for (int i = 0; i < N; i += 1) {
+            for (int j = 0; j < N; j += 1) {
+                if (isFull(i, j)) {
+                    System.out.print(2 + "  ");
+                } else {
+                    System.out.print(grid[i][j] + "  ");
                 }
             }
+            System.out.println();
         }
-        return false;
     }
 
-    // use for unit testing (not required)
     public static void main(String[] args) {
-        /**Percolation hw2 = new Percolation(9);
-        for (int j = 0; j < 6; j += 1) {
-            hw2.open(j, 3);
-        }
-        for (int i = 5; i < 7; i++) {
-            hw2.open(i, 4);
-        }
-        for (int k = 6; k < 8; k++) {
-            hw2.open(k, 5);
-        }
-        for (int k = 6; k < 9; k++) {
-            hw2.open(7, k);
-        }
-        for (int k = 0; k < 9; k++) {
-            hw2.open(k, 8);
-        }
-        hw2.open(0, 3);
-        System.out.println(hw2.isOpen(0, 3));
-        hw2.open(1, 3);
-        System.out.println(hw2.isOpen(1, 3));
-        System.out.println(hw2.isFull(1, 3));
-        System.out.println(hw2.numberOfOpenSites());
-        System.out.println(hw2.percolates());*/
+        // test1();
+        // test2();
+        test3();
     }
 
+    private static void test1() {
+        Percolation p = new Percolation(5);
+        p.print();
+        testOpen(p, 3, 4);
+        testOpen(p, 4, 4);
+        testOpen(p, 3, 3);
+        testOpen(p, 2, 3);
+        testOpen(p, 1, 3);
+        testOpen(p, 0, 3);
+        testOpen(p, 2, 2);
+        testOpen(p, 4, 2);
+    }
+
+    private static void test2() {  // test N = 1
+        Percolation p = new Percolation(1);
+        p.print();
+        System.out.println(p.percolates());
+        testOpen(p, 0, 0);
+    }
+
+    private static void test3() { // test N = 2
+        Percolation p = new Percolation(2);
+        p.print();
+        System.out.println(p.percolates());
+        // testOpen(p, 0, 0);
+        testOpen(p, 0, 1);
+        testOpen(p, 1, 1);
+        testOpen(p, 1, 0);
+    }
+
+    private static void testOpen(Percolation p, int row, int col) {
+        p.open(row, col);
+        System.out.println("Opened: " + "( " + row + ", " + col + " )");
+        System.out.println("#site opened: " + p.numberOfOpenSites());
+        p.print();
+        System.out.println("Percolated: " + p.percolates());
+    }
 }
