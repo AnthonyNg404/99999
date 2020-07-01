@@ -3,7 +3,6 @@ package hw2;
 import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
 public class Percolation {
-    private WeightedQuickUnionUF siteOpen;
     private WeightedQuickUnionUF siteFull;
     private int dimension;
     private int[][] grid;
@@ -13,9 +12,8 @@ public class Percolation {
     // create N-by-N grid, with all sites initially blocked
     public Percolation(int N) {
         if (N <= 0) {
-            throw new IllegalArgumentException("N should be larger or equal to 0");
+            throw new IllegalArgumentException();
         }
-        siteOpen = new WeightedQuickUnionUF(N * N + 1);
         siteFull = new WeightedQuickUnionUF(N * N);
         dimension = N;
         grid = new int[N][N];
@@ -23,15 +21,41 @@ public class Percolation {
 
     // open the site (row, col) if it is not open already
     public void open(int row, int col) {
+        if (row < 0) {
+            throw new IllegalArgumentException();
+        }
         if (row < 0 || row >= dimension || col < 0 || col >= dimension) {
-            throw new IllegalArgumentException("row or col should be between 0 and N - 1");
+            throw new IllegalArgumentException();
         }
         if (!isOpen(row, col)) {
             grid[row][col] = 1;
             openCount += 1;
-            siteOpen.union(row * dimension + col + 1, 0);
             //System.out.println(siteOpen.connected(row * dimension + col + 1, 0));
             //System.out.println(siteOpen.find(row * dimension + col + 1));
+            if (dimension == 1) {
+                return;
+            }
+            if (row == 0) {
+                grid[row][col] = 2;
+                if (isOpen(row + 1, col)) {
+                    //System.out.println("connect! " + row + " " + col + " down");
+                    siteFull.union(row * dimension + col, (row + 1) * dimension + col);
+                }
+            } else if (row == dimension - 1) {
+                if (isOpen(row - 1, col)) {
+                    //System.out.println("connect! " + row + " " + col + " up");
+                    siteFull.union(row * dimension + col, (row - 1) * dimension + col);
+                }
+            } else {
+                if (isOpen(row + 1, col)) {
+                    //System.out.println("connect! " + row + " " + col + " down");
+                    siteFull.union(row * dimension + col, (row + 1) * dimension + col);
+                }
+                if (isOpen(row - 1, col)) {
+                    //System.out.println("connect! " + row + " " + col + " up");
+                    siteFull.union(row * dimension + col, (row - 1) * dimension + col);
+                }
+            }
             if (col == 0) {
                 if (isOpen(row, col + 1)) {
                     //System.out.println("connect!" + row + "" + col);
@@ -52,24 +76,18 @@ public class Percolation {
                     siteFull.union(row * dimension + col, row * dimension + col - 1);
                 }
             }
-            if (row == 0) {
-                if (isOpen(row + 1, col)) {
-                    //System.out.println("connect! " + row + " " + col + " down");
-                    siteFull.union(row * dimension + col, (row + 1) * dimension + col);
-                }
-            } else if (row == dimension - 1) {
-                if (isOpen(row - 1, col)) {
-                    //System.out.println("connect! " + row + " " + col + " up");
-                    siteFull.union(row * dimension + col, (row - 1) * dimension + col);
-                }
-            } else {
-                if (isOpen(row + 1, col)) {
-                    //System.out.println("connect! " + row + " " + col + " down");
-                    siteFull.union(row * dimension + col, (row + 1) * dimension + col);
-                }
-                if (isOpen(row - 1, col)) {
-                    //System.out.println("connect! " + row + " " + col + " up");
-                    siteFull.union(row * dimension + col, (row - 1) * dimension + col);
+            for (int i = 0; i < dimension; i++) {
+                for(int j = 0; j < dimension; j++) {
+                    if (isOpen(i, j) && !isFull(i, j)) {
+                        for(int k = 0; k <dimension; k++) {
+                            if (isOpen(0, k)) {
+                                //System.out.println(siteFull.connected(12, 3));
+                                if (siteFull.connected(i * dimension + j, k)) {
+                                    grid[i][j] = 2;
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -78,26 +96,18 @@ public class Percolation {
     // is the site (row, col) open?
     public boolean isOpen(int row, int col) {
         if (row < 0 || row >= dimension || col < 0 || col >= dimension) {
-            throw new IllegalArgumentException("row or col should be between 0 and N - 1");
+            throw new IllegalArgumentException();
         }
         //System.out.println(siteOpen.find(row * dimension + col + 1) + "  !");
-        return grid[row][col] == 1;
+        return grid[row][col] >= 1;
     }
 
     // is the site (row, col) full?
     public boolean isFull(int row, int col) {
         if (row < 0 || row >= dimension || col < 0 || col >= dimension) {
-            throw new IllegalArgumentException("row or col should be between 0 and N - 1");
+            throw new IllegalArgumentException();
         }
-        for (int i = 0; i < dimension; i++) {
-            if (isOpen(0, i)) {
-                //System.out.println(siteFull.connected(12, 3));
-                if (siteFull.connected(row * dimension + col, i)) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return grid[row][col] == 2;
     }
 
     // number of open sites
@@ -142,6 +152,10 @@ public class Percolation {
         System.out.println(hw2.isFull(1, 3));
         System.out.println(hw2.numberOfOpenSites());
         System.out.println(hw2.percolates());*/
+
+
+        Percolation hw2 = new Percolation(10);
+        hw2.open(0, 0);
     }
 
 }
