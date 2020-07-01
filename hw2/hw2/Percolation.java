@@ -21,9 +21,6 @@ public class Percolation {
 
     // open the site (row, col) if it is not open already
     public void open(int row, int col) {
-        if (row < 0) {
-            throw new IllegalArgumentException();
-        }
         if (row < 0 || row >= dimension || col < 0 || col >= dimension) {
             throw new IllegalArgumentException();
         }
@@ -40,53 +37,61 @@ public class Percolation {
                 if (isOpen(row + 1, col)) {
                     //System.out.println("connect! " + row + " " + col + " down");
                     siteFull.union(row * dimension + col, (row + 1) * dimension + col);
+                    grid[row + 1][col] = 2;
                 }
             } else if (row == dimension - 1) {
                 if (isOpen(row - 1, col)) {
                     //System.out.println("connect! " + row + " " + col + " up");
-                    siteFull.union(row * dimension + col, (row - 1) * dimension + col);
+                    siteFull.union((row - 1) * dimension + col, row * dimension + col);
+                    if (grid[row][col] == 2) {
+                        grid[row - 1][col] = 2;
+                    }
                 }
             } else {
                 if (isOpen(row + 1, col)) {
                     //System.out.println("connect! " + row + " " + col + " down");
                     siteFull.union(row * dimension + col, (row + 1) * dimension + col);
+                    if (grid[row][col] == 2) {
+                        grid[row + 1][col] = 2;
+                    }
                 }
                 if (isOpen(row - 1, col)) {
                     //System.out.println("connect! " + row + " " + col + " up");
-                    siteFull.union(row * dimension + col, (row - 1) * dimension + col);
+                    siteFull.union((row - 1) * dimension + col, row * dimension + col);
+                    if (grid[row][col] == 2) {
+                        grid[row - 1][col] = 2;
+                    }
                 }
             }
             if (col == 0) {
                 if (isOpen(row, col + 1)) {
                     //System.out.println("connect!" + row + "" + col);
                     siteFull.union(row * dimension + col, row * dimension + col + 1);
+                    if (grid[row][col] == 2) {
+                        grid[row][col + 1] = 2;
+                    }
                 }
             } else if (col == dimension - 1) {
                 if (isOpen(row, col - 1)) {
                     //System.out.println("connect!" + row + "" + col);
-                    siteFull.union(row * dimension + col, row * dimension + col - 1);
+                    siteFull.union(row * dimension + col - 1, row * dimension + col);
+                    if (grid[row][col] == 2) {
+                        grid[row][col - 1] = 2;
+                    }
                 }
             } else {
                 if (isOpen(row, col + 1)) {
                     //System.out.println("connect!" + row + "" + col);
                     siteFull.union(row * dimension + col, row * dimension + col + 1);
+                    if (grid[row][col] == 2) {
+                        grid[row][col + 1] = 2;
+                    }
                 }
                 if (isOpen(row, col - 1)) {
                     //System.out.println("connect!" + row + "" + col);
-                    siteFull.union(row * dimension + col, row * dimension + col - 1);
-                }
-            }
-            for (int i = 0; i < dimension; i++) {
-                for (int j = 0; j < dimension; j++) {
-                    if (isOpen(i, j) && !isFull(i, j)) {
-                        for (int k = 0; k < dimension; k++) {
-                            if (isOpen(0, k)) {
-                                //System.out.println(siteFull.connected(12, 3));
-                                if (siteFull.connected(i * dimension + j, k)) {
-                                    grid[i][j] = 2;
-                                }
-                            }
-                        }
+                    siteFull.union(row * dimension + col - 1, row * dimension + col);
+                    if (grid[row][col] == 2) {
+                        grid[row][col - 1] = 2;
                     }
                 }
             }
@@ -107,7 +112,23 @@ public class Percolation {
         if (row < 0 || row >= dimension || col < 0 || col >= dimension) {
             throw new IllegalArgumentException();
         }
-        return grid[row][col] == 2;
+        if (dimension == 1) {
+            return isOpen(0, 0);
+        }
+        if (isOpen(row, col)) {
+            if (grid[row][col] == 2) {
+                return true;
+            }
+            for (int i = 0; i < dimension; i++) {
+                if (isOpen(0, i)) {
+                    if (siteFull.connected(row * dimension + col, i)) {
+                        grid[row][col] = 2;
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     // number of open sites
@@ -151,11 +172,14 @@ public class Percolation {
         System.out.println(hw2.isOpen(1, 3));
         System.out.println(hw2.isFull(1, 3));
         System.out.println(hw2.numberOfOpenSites());
-        System.out.println(hw2.percolates());*/
-
-
-        Percolation hw2 = new Percolation(10);
-        hw2.open(0, 0);
+        System.out.println(hw2.siteFull.find(80));
+        /**for (int j = 0; j < 3; j += 1) {
+            hw2.open(j, 3);
+        }
+        System.out.println(hw2.percolates());
+        System.out.println(hw2.siteFull.find(3));
+        System.out.println(hw2.siteFull.find(12));
+        System.out.println(hw2.siteFull.find(21));*/
     }
 
 }
