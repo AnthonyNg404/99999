@@ -1,53 +1,58 @@
 package hw2;
 
 import edu.princeton.cs.algs4.StdRandom;
-import edu.princeton.cs.algs4.StdStats;
 
 public class PercolationStats {
+    private double total = 0;
+    private int count;
+    private int[] numberSet;
+    private double mean;
+    private double stdDev;
 
-  // private int N;
-    private double[] data;
-
-
+    // perform T independent experiments on an N-by-N grid
     public PercolationStats(int N, int T, PercolationFactory pf) {
         if (N <= 0 || T <= 0) {
             throw new IllegalArgumentException();
         }
-        data = new double[T];
-        for (int i = 0; i < T; i += 1) {
+        count = T;
+        numberSet = new int[T];
+        for (int i = 0; i < T; i++) {
             Percolation p = pf.make(N);
             while (!p.percolates()) {
                 int row = StdRandom.uniform(N);
                 int col = StdRandom.uniform(N);
                 p.open(row, col);
             }
-            data[i] = (double) p.numberOfOpenSites() / (N * N);
+            total += p.numberOfOpenSites();
+            numberSet[i] = p.numberOfOpenSites();
         }
+        mean = mean();
+        stdDev = stddev();
     }
 
+    // sample mean of percolation threshold
     public double mean() {
-        return StdStats.mean(data);
+        mean = total / count;
+        return mean;
     }
 
+    // sample standard deviation of percolation threshold
     public double stddev() {
-        return StdStats.stddev(data);
+        double sum = 0;
+        for (int num : numberSet) {
+            sum += Math.pow(num - mean, 2);
+        }
+        stdDev = Math.sqrt(sum / (count - 1));
+        return stdDev;
     }
 
+    // low endpoint of 95% confidence interval
     public double confidenceLow() {
-        double mean = mean();
-        double stddev = stddev();
-        return mean - (1.96 * stddev) / Math.sqrt(data.length);
+        return mean - 1.96 * stdDev / Math.sqrt(count);
     }
 
+    // high endpoint of 95% confidence interval
     public double confidenceHigh() {
-        double mean = mean();
-        double stddev = stddev();
-        return mean + (1.96 * stddev) / Math.sqrt(data.length);
-    }
-
-    private static void main(String[] args) {
-        PercolationStats ps = new PercolationStats(30, 100, new PercolationFactory());
-        System.out.println("Low bound: " + ps.confidenceLow());
-        System.out.println("High bound: " + ps.confidenceHigh());
+        return mean + 1.96 * stdDev / Math.sqrt(count);
     }
 }
