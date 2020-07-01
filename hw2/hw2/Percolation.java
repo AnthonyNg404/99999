@@ -21,9 +21,7 @@ public class Percolation {
 
     // open the site (row, col) if it is not open already
     public void open(int row, int col) {
-        if (row < 0 || row >= dimension || col < 0 || col >= dimension) {
-            throw new IllegalArgumentException();
-        }
+        checkIndex(row, col);
         if (!isOpen(row, col)) {
             grid[row][col] = 1;
             openCount += 1;
@@ -100,18 +98,14 @@ public class Percolation {
 
     // is the site (row, col) open?
     public boolean isOpen(int row, int col) {
-        if (row < 0 || row >= dimension || col < 0 || col >= dimension) {
-            throw new IllegalArgumentException();
-        }
+        checkIndex(row, col);
         //System.out.println(siteOpen.find(row * dimension + col + 1) + "  !");
         return grid[row][col] >= 1;
     }
 
     // is the site (row, col) full?
     public boolean isFull(int row, int col) {
-        if (row < 0 || row >= dimension || col < 0 || col >= dimension) {
-            throw new IllegalArgumentException();
-        }
+        checkIndex(row, col);
         if (dimension == 1) {
             return isOpen(0, 0);
         }
@@ -148,10 +142,24 @@ public class Percolation {
         return false;
     }
 
+    private boolean validIndex(int row, int col) {
+        if (row < 0 || row > dimension - 1) {
+            return false;
+        }
+        return col >= 0 && col <= dimension - 1;
+    }
+
+    private void checkIndex(int row, int col) {
+        if (!validIndex(row, col)) {
+            throw new IndexOutOfBoundsException();
+        }
+    }
+
     // use for unit testing (not required)
     public static void main(String[] args) {
         /**Percolation hw2 = new Percolation(9);
-        for (int j = 0; j < 6; j += 1) {
+        hw2.open(-1, 5);
+        /**for (int j = 0; j < 6; j += 1) {
             hw2.open(j, 3);
         }
         for (int i = 5; i < 7; i++) {
