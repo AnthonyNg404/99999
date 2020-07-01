@@ -43,6 +43,8 @@ public class Percolation {
                     siteFull.union((row - 1) * dimension + col, row * dimension + col);
                     if (grid[row][col] == 2) {
                         grid[row - 1][col] = 2;
+                    } else if (grid[row - 1][col] == 2) {
+                        grid[row][col] = 2;
                     }
                 }
             } else {
@@ -51,6 +53,8 @@ public class Percolation {
                     siteFull.union(row * dimension + col, (row + 1) * dimension + col);
                     if (grid[row][col] == 2) {
                         grid[row + 1][col] = 2;
+                    } else if (grid[row + 1][col] == 2) {
+                        grid[row][col] = 2;
                     }
                 }
                 if (isOpen(row - 1, col)) {
@@ -58,6 +62,8 @@ public class Percolation {
                     siteFull.union((row - 1) * dimension + col, row * dimension + col);
                     if (grid[row][col] == 2) {
                         grid[row - 1][col] = 2;
+                    } else if (grid[row - 1][col] == 2) {
+                        grid[row][col] = 2;
                     }
                 }
             }
@@ -67,6 +73,8 @@ public class Percolation {
                     siteFull.union(row * dimension + col, row * dimension + col + 1);
                     if (grid[row][col] == 2) {
                         grid[row][col + 1] = 2;
+                    } else if (grid[row][col + 1] == 2) {
+                        grid[row][col] = 2;
                     }
                 }
             } else if (col == dimension - 1) {
@@ -75,6 +83,8 @@ public class Percolation {
                     siteFull.union(row * dimension + col - 1, row * dimension + col);
                     if (grid[row][col] == 2) {
                         grid[row][col - 1] = 2;
+                    } else if (grid[row][col - 1] == 2) {
+                        grid[row][col] = 2;
                     }
                 }
             } else {
@@ -83,6 +93,8 @@ public class Percolation {
                     siteFull.union(row * dimension + col, row * dimension + col + 1);
                     if (grid[row][col] == 2) {
                         grid[row][col + 1] = 2;
+                    } else if (grid[row][col + 1] == 2) {
+                        grid[row][col] = 2;
                     }
                 }
                 if (isOpen(row, col - 1)) {
@@ -90,6 +102,8 @@ public class Percolation {
                     siteFull.union(row * dimension + col - 1, row * dimension + col);
                     if (grid[row][col] == 2) {
                         grid[row][col - 1] = 2;
+                    } else if (grid[row][col - 1] == 2) {
+                        grid[row][col] = 2;
                     }
                 }
             }
@@ -125,6 +139,24 @@ public class Percolation {
         return false;
     }
 
+    /**private boolean goToTop(int row, int col) {
+        if (row == 0) {
+            return true;
+        }
+        if (col > 0 && col < dimension - 1) {
+            if (isOpen(row - 1, col)) {
+                return false || goToTop(row - 1, col);
+            }
+            if (isOpen(row, col + 1)) {
+                return false || goToTop(row, col + 1);
+            }
+            if (isOpen(row, col - 1)) {
+                return false || goToTop(row, col - 1);
+            }
+        }
+        return false;
+    }*/
+
     // number of open sites
     public int numberOfOpenSites() {
         return openCount;
@@ -132,14 +164,25 @@ public class Percolation {
 
     // does the system percolate?
     public boolean percolates() {
+        if (dimension == 1) {
+            return isOpen(0, 0);
+        }
         for (int i = 0; i < dimension; i++) {
             if (isOpen(dimension - 1, i)) {
-                if (isFull(dimension - 1, i)) {
+                if (grid[dimension - 1][i] == 2) {
                     return true;
                 }
             }
         }
         return false;
+        /**for (int i = 0; i < dimension; i++) {
+            if (isOpen(dimension - 1, i)) {
+                if (isOpen(dimension - 2, i)) {
+                    return isFull(dimension - 1, i);
+                }
+            }
+        }
+        return false;*/
     }
 
     private boolean validIndex(int row, int col) {
