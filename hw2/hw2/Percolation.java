@@ -77,9 +77,9 @@ public class Percolation {
                 }
             }
             for (int i = 0; i < dimension; i++) {
-                for(int j = 0; j < dimension; j++) {
+                for (int j = 0; j < dimension; j++) {
                     if (isOpen(i, j) && !isFull(i, j)) {
-                        for(int k = 0; k <dimension; k++) {
+                        for (int k = 0; k < dimension; k++) {
                             if (isOpen(0, k)) {
                                 //System.out.println(siteFull.connected(12, 3));
                                 if (siteFull.connected(i * dimension + j, k)) {
