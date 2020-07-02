@@ -21,7 +21,7 @@ public class Percolation {
     }
 
     private void setup() {
-        for(int i = 0; i < dimension; i++) {
+        for (int i = 0; i < dimension; i++) {
             siteFull.union(toIndex(0, i), dimension * dimension);
             siteFull.union(toIndex(dimension - 1, i), dimension * dimension + 1);
         }
