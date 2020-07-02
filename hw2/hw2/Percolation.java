@@ -7,6 +7,7 @@ public class Percolation {
     private int dimension;
     private int[][] grid;
     private int openCount = 0;
+    private boolean per = false;
 
 
     // create N-by-N grid, with all sites initially blocked
@@ -34,17 +35,25 @@ public class Percolation {
         }
     }
 
+    private boolean checkIndexNew(int row, int col) {
+        if (row < 0 || row > dimension - 1) {
+            return false;
+        }
+        return col >= 0 && col <= dimension - 1;
+    }
+
     private void fill(int row, int col) {
+        if (!checkIndexNew(row, col)) {
+            return;
+        }
         if (row == 0) {
             grid[row][col] = 2;
             if (isOpen(row + 1, col)) {
-                //System.out.println("connect! " + row + " " + col + " down");
                 siteFull.union(row * dimension + col, (row + 1) * dimension + col);
                 grid[row + 1][col] = 2;
             }
         } else if (row == dimension - 1) {
             if (isOpen(row - 1, col)) {
-                //System.out.println("connect! " + row + " " + col + " up");
                 siteFull.union((row - 1) * dimension + col, row * dimension + col);
                 if (grid[row][col] == 2) {
                     grid[row - 1][col] = 2;
@@ -54,7 +63,6 @@ public class Percolation {
             }
         } else {
             if (isOpen(row + 1, col)) {
-                //System.out.println("connect! " + row + " " + col + " down");
                 siteFull.union(row * dimension + col, (row + 1) * dimension + col);
                 if (grid[row][col] == 2) {
                     grid[row + 1][col] = 2;
@@ -63,7 +71,6 @@ public class Percolation {
                 }
             }
             if (isOpen(row - 1, col)) {
-                //System.out.println("connect! " + row + " " + col + " up");
                 siteFull.union((row - 1) * dimension + col, row * dimension + col);
                 if (grid[row][col] == 2) {
                     grid[row - 1][col] = 2;
@@ -74,7 +81,6 @@ public class Percolation {
         }
         if (col == 0) {
             if (isOpen(row, col + 1)) {
-                //System.out.println("connect!" + row + "" + col);
                 siteFull.union(row * dimension + col, row * dimension + col + 1);
                 if (grid[row][col] == 2) {
                     grid[row][col + 1] = 2;
@@ -84,7 +90,6 @@ public class Percolation {
             }
         } else if (col == dimension - 1) {
             if (isOpen(row, col - 1)) {
-                //System.out.println("connect!" + row + "" + col);
                 siteFull.union(row * dimension + col - 1, row * dimension + col);
                 if (grid[row][col] == 2) {
                     grid[row][col - 1] = 2;
@@ -94,7 +99,6 @@ public class Percolation {
             }
         } else {
             if (isOpen(row, col + 1)) {
-                //System.out.println("connect!" + row + "" + col);
                 siteFull.union(row * dimension + col, row * dimension + col + 1);
                 if (grid[row][col] == 2) {
                     grid[row][col + 1] = 2;
@@ -103,7 +107,6 @@ public class Percolation {
                 }
             }
             if (isOpen(row, col - 1)) {
-                //System.out.println("connect!" + row + "" + col);
                 siteFull.union(row * dimension + col - 1, row * dimension + col);
                 if (grid[row][col] == 2) {
                     grid[row][col - 1] = 2;
@@ -129,13 +132,44 @@ public class Percolation {
         }
         if (isOpen(row, col)) {
             if (grid[row][col] == 2) {
+                if (row == dimension - 1) {
+                    per = true;
+                }
+                fill(row, col);
+                if (row - 1 > 0 && isOpen(row - 1, col)) {
+                    fill(row - 1, col);
+                }
+                if (row + 1 <= dimension - 1 && isOpen(row + 1, col)) {
+                    fill(row + 1, col);
+                }
+                if (col - 1 > 0 && isOpen(row, col - 1)) {
+                    fill(row, col - 1);
+                }
+                if (col + 1 <= dimension - 1 && isOpen(row, col + 1)) {
+                    fill(row, col + 1);
+                }
                 return true;
             }
             for (int i = 0; i < dimension; i++) {
                 if (isOpen(0, i)) {
                     if (siteFull.connected(row * dimension + col, i)) {
+                        if (row == dimension - 1) {
+                            per = true;
+                        }
                         grid[row][col] = 2;
                         fill(row, col);
+                        if (row - 1 > 0 && isOpen(row - 1, col)) {
+                            fill(row - 1, col);
+                        }
+                        if (row + 1 <= dimension - 1 && isOpen(row + 1, col)) {
+                            fill(row + 1, col);
+                        }
+                        if (col - 1 > 0 && isOpen(row, col - 1)) {
+                            fill(row, col - 1);
+                        }
+                        if (col + 1 <= dimension - 1 && isOpen(row, col + 1)) {
+                            fill(row, col + 1);
+                        }
                         return true;
                     }
                 }
@@ -172,16 +206,7 @@ public class Percolation {
         if (dimension == 1) {
             return isOpen(0, 0);
         }
-        for (int i = 0; i < dimension; i++) {
-            if (isOpen(dimension - 1, i)) {
-                if (grid[dimension - 1][i] == 2) {
-                    return true;
-                } else if (isFull(dimension - 1, i)) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return per;
         /**for (int i = 0; i < dimension; i++) {
             if (isOpen(dimension - 1, i)) {
                 if (isOpen(dimension - 2, i)) {
