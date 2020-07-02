@@ -7,7 +7,6 @@ public class Percolation {
     private int dimension;
     private int[][] grid;
     private int openCount = 0;
-    private boolean per = false;
 
 
     // create N-by-N grid, with all sites initially blocked
@@ -15,9 +14,21 @@ public class Percolation {
         if (N <= 0) {
             throw new IllegalArgumentException();
         }
-        siteFull = new WeightedQuickUnionUF(N * N);
+        siteFull = new WeightedQuickUnionUF(N * N + 2);
         dimension = N;
         grid = new int[N][N];
+        setup();
+    }
+
+    private void setup() {
+        for(int i = 0; i < dimension; i++) {
+            siteFull.union(toIndex(0, i), dimension * dimension);
+            siteFull.union(toIndex(dimension - 1, i), dimension * dimension + 1);
+        }
+    }
+
+    private int toIndex(int row, int col) {
+        return row * dimension + col;
     }
 
     // open the site (row, col) if it is not open already
@@ -35,84 +46,40 @@ public class Percolation {
         }
     }
 
-    private boolean checkIndexNew(int row, int col) {
-        if (row < 0 || row > dimension - 1) {
-            return false;
-        }
-        return col >= 0 && col <= dimension - 1;
-    }
-
     private void fill(int row, int col) {
-        if (!checkIndexNew(row, col)) {
+        if (!validIndex(row, col)) {
             return;
         }
         if (row == 0) {
-            grid[row][col] = 2;
             if (isOpen(row + 1, col)) {
-                siteFull.union(row * dimension + col, (row + 1) * dimension + col);
-                grid[row + 1][col] = 2;
+                siteFull.union(toIndex(row, col), toIndex(row + 1, col));
             }
         } else if (row == dimension - 1) {
             if (isOpen(row - 1, col)) {
-                siteFull.union((row - 1) * dimension + col, row * dimension + col);
-                if (grid[row][col] == 2) {
-                    grid[row - 1][col] = 2;
-                } else if (grid[row - 1][col] == 2) {
-                    grid[row][col] = 2;
-                }
+                siteFull.union(toIndex(row, col), toIndex(row - 1, col));
             }
         } else {
             if (isOpen(row + 1, col)) {
-                siteFull.union(row * dimension + col, (row + 1) * dimension + col);
-                if (grid[row][col] == 2) {
-                    grid[row + 1][col] = 2;
-                } else if (grid[row + 1][col] == 2) {
-                    grid[row][col] = 2;
-                }
+                siteFull.union(toIndex(row, col), toIndex(row + 1, col));
             }
             if (isOpen(row - 1, col)) {
-                siteFull.union((row - 1) * dimension + col, row * dimension + col);
-                if (grid[row][col] == 2) {
-                    grid[row - 1][col] = 2;
-                } else if (grid[row - 1][col] == 2) {
-                    grid[row][col] = 2;
-                }
+                siteFull.union(toIndex(row, col), toIndex(row - 1, col));
             }
         }
         if (col == 0) {
             if (isOpen(row, col + 1)) {
-                siteFull.union(row * dimension + col, row * dimension + col + 1);
-                if (grid[row][col] == 2) {
-                    grid[row][col + 1] = 2;
-                } else if (grid[row][col + 1] == 2) {
-                    grid[row][col] = 2;
-                }
+                siteFull.union(toIndex(row, col), toIndex(row, col + 1));
             }
         } else if (col == dimension - 1) {
             if (isOpen(row, col - 1)) {
-                siteFull.union(row * dimension + col - 1, row * dimension + col);
-                if (grid[row][col] == 2) {
-                    grid[row][col - 1] = 2;
-                } else if (grid[row][col - 1] == 2) {
-                    grid[row][col] = 2;
-                }
+                siteFull.union(toIndex(row, col), toIndex(row, col - 1));
             }
         } else {
             if (isOpen(row, col + 1)) {
-                siteFull.union(row * dimension + col, row * dimension + col + 1);
-                if (grid[row][col] == 2) {
-                    grid[row][col + 1] = 2;
-                } else if (grid[row][col + 1] == 2) {
-                    grid[row][col] = 2;
-                }
+                siteFull.union(toIndex(row, col), toIndex(row, col + 1));
             }
             if (isOpen(row, col - 1)) {
-                siteFull.union(row * dimension + col - 1, row * dimension + col);
-                if (grid[row][col] == 2) {
-                    grid[row][col - 1] = 2;
-                } else if (grid[row][col - 1] == 2) {
-                    grid[row][col] = 2;
-                }
+                siteFull.union(toIndex(row, col), toIndex(row, col - 1));
             }
         }
     }
@@ -121,7 +88,7 @@ public class Percolation {
     public boolean isOpen(int row, int col) {
         checkIndex(row, col);
         //System.out.println(siteOpen.find(row * dimension + col + 1) + "  !");
-        return grid[row][col] >= 1;
+        return grid[row][col] == 1;
     }
 
     // is the site (row, col) full?
@@ -131,52 +98,34 @@ public class Percolation {
             return isOpen(0, 0);
         }
         if (isOpen(row, col)) {
-            if (grid[row][col] == 2) {
-                if (row == dimension - 1) {
-                    per = true;
-                }
-                fill(row, col);
-                if (row - 1 > 0 && isOpen(row - 1, col)) {
-                    fill(row - 1, col);
-                }
-                if (row + 1 <= dimension - 1 && isOpen(row + 1, col)) {
-                    fill(row + 1, col);
-                }
-                if (col - 1 > 0 && isOpen(row, col - 1)) {
-                    fill(row, col - 1);
-                }
-                if (col + 1 <= dimension - 1 && isOpen(row, col + 1)) {
-                    fill(row, col + 1);
-                }
-                return true;
-            }
-            for (int i = 0; i < dimension; i++) {
-                if (isOpen(0, i)) {
-                    if (siteFull.connected(row * dimension + col, i)) {
-                        if (row == dimension - 1) {
-                            per = true;
-                        }
-                        grid[row][col] = 2;
-                        fill(row, col);
-                        if (row - 1 > 0 && isOpen(row - 1, col)) {
-                            fill(row - 1, col);
-                        }
-                        if (row + 1 <= dimension - 1 && isOpen(row + 1, col)) {
-                            fill(row + 1, col);
-                        }
-                        if (col - 1 > 0 && isOpen(row, col - 1)) {
-                            fill(row, col - 1);
-                        }
-                        if (col + 1 <= dimension - 1 && isOpen(row, col + 1)) {
-                            fill(row, col + 1);
-                        }
-                        return true;
-                    }
-                }
-            }
+            return siteFull.connected(toIndex(row, col), dimension * dimension);
         }
         return false;
     }
+
+    /**private boolean checkAround(int row, int col) {
+        if (checkIndexNew(row + 1, col)) {
+            if (isOpen(row + 1, col)) {
+                return true;
+            }
+        }
+        if (checkIndexNew(row - 1, col)) {
+            if (!isOpen(row - 1, col)) {
+                return true;
+            }
+        }
+        if (checkIndexNew(row, col + 1)) {
+            if (isOpen(row, col + 1)) {
+                return true;
+            }
+        }
+        if (checkIndexNew(row, col - 1)) {
+            if (isOpen(row, col - 1)) {
+                return true;
+            }
+        }
+        return false;
+    }*/
 
     /**private boolean goToTop(int row, int col) {
         if (row == 0) {
@@ -206,7 +155,7 @@ public class Percolation {
         if (dimension == 1) {
             return isOpen(0, 0);
         }
-        return per;
+        return siteFull.connected(dimension * dimension, dimension * dimension + 1);
         /**for (int i = 0; i < dimension; i++) {
             if (isOpen(dimension - 1, i)) {
                 if (isOpen(dimension - 2, i)) {
