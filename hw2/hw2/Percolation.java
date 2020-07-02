@@ -4,9 +4,11 @@ import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
 public class Percolation {
     private WeightedQuickUnionUF siteFull;
+    private WeightedQuickUnionUF siteOpen;
     private int dimension;
     private int[][] grid;
     private int openCount = 0;
+    private final int[][] DIRECTION = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
 
 
     // create N-by-N grid, with all sites initially blocked
@@ -14,9 +16,23 @@ public class Percolation {
         if (N <= 0) {
             throw new IllegalArgumentException();
         }
-        siteFull = new WeightedQuickUnionUF(N * N);
+        siteFull = new WeightedQuickUnionUF(N * N + 2);
+        siteOpen = new WeightedQuickUnionUF(N * N + 1);
         dimension = N;
         grid = new int[N][N];
+        setup();
+    }
+
+    private void setup() {
+        for (int i = 0; i < dimension; i++) {
+            siteOpen.union(toIndex(0, i), dimension * dimension);
+            siteFull.union(toIndex(0, i), dimension * dimension);
+            siteFull.union(toIndex(dimension - 1, i), dimension * dimension + 1);
+        }
+    }
+
+    private int toIndex(int row, int col) {
+        return row * dimension + col;
     }
 
     // open the site (row, col) if it is not open already
@@ -30,97 +46,61 @@ public class Percolation {
             if (dimension == 1) {
                 return;
             }
-            fill(row, col);
+            for (int[] dir : DIRECTION) {
+                int r = row + dir[0]; int c = col + dir[1];
+                if (validIndex(r, c) && isOpen(r, c)) {
+                    int ind1 = toIndex(row, col);
+                    int ind2 = toIndex(r, c);
+                    siteFull.union(ind1, ind2);
+                    siteOpen.union(ind1, ind2);
+                }
+            }
         }
     }
 
-    private boolean checkIndexNew(int row, int col) {
-        if (row < 0 || row > dimension - 1) {
-            return false;
-        }
-        return col >= 0 && col <= dimension - 1;
-    }
-
-    private void fill(int row, int col) {
-        if (!checkIndexNew(row, col)) {
+    /**private void fill(int row, int col) {
+        if (!validIndex(row, col)) {
             return;
         }
         if (row == 0) {
-            grid[row][col] = 2;
             if (isOpen(row + 1, col)) {
-                siteFull.union(row * dimension + col, (row + 1) * dimension + col);
-                grid[row + 1][col] = 2;
+                siteFull.union(toIndex(row, col), toIndex(row + 1, col));
             }
         } else if (row == dimension - 1) {
             if (isOpen(row - 1, col)) {
-                siteFull.union((row - 1) * dimension + col, row * dimension + col);
-                if (grid[row][col] == 2) {
-                    grid[row - 1][col] = 2;
-                } else if (grid[row - 1][col] == 2) {
-                    grid[row][col] = 2;
-                }
+                siteFull.union(toIndex(row, col), toIndex(row - 1, col));
             }
         } else {
             if (isOpen(row + 1, col)) {
-                siteFull.union(row * dimension + col, (row + 1) * dimension + col);
-                if (grid[row][col] == 2) {
-                    grid[row + 1][col] = 2;
-                } else if (grid[row + 1][col] == 2) {
-                    grid[row][col] = 2;
-                }
+                siteFull.union(toIndex(row, col), toIndex(row + 1, col));
             }
             if (isOpen(row - 1, col)) {
-                siteFull.union((row - 1) * dimension + col, row * dimension + col);
-                if (grid[row][col] == 2) {
-                    grid[row - 1][col] = 2;
-                } else if (grid[row - 1][col] == 2) {
-                    grid[row][col] = 2;
-                }
+                siteFull.union(toIndex(row, col), toIndex(row - 1, col));
             }
         }
         if (col == 0) {
             if (isOpen(row, col + 1)) {
-                siteFull.union(row * dimension + col, row * dimension + col + 1);
-                if (grid[row][col] == 2) {
-                    grid[row][col + 1] = 2;
-                } else if (grid[row][col + 1] == 2) {
-                    grid[row][col] = 2;
-                }
+                siteFull.union(toIndex(row, col), toIndex(row, col + 1));
             }
         } else if (col == dimension - 1) {
             if (isOpen(row, col - 1)) {
-                siteFull.union(row * dimension + col - 1, row * dimension + col);
-                if (grid[row][col] == 2) {
-                    grid[row][col - 1] = 2;
-                } else if (grid[row][col - 1] == 2) {
-                    grid[row][col] = 2;
-                }
+                siteFull.union(toIndex(row, col), toIndex(row, col - 1));
             }
         } else {
             if (isOpen(row, col + 1)) {
-                siteFull.union(row * dimension + col, row * dimension + col + 1);
-                if (grid[row][col] == 2) {
-                    grid[row][col + 1] = 2;
-                } else if (grid[row][col + 1] == 2) {
-                    grid[row][col] = 2;
-                }
+                siteFull.union(toIndex(row, col), toIndex(row, col + 1));
             }
             if (isOpen(row, col - 1)) {
-                siteFull.union(row * dimension + col - 1, row * dimension + col);
-                if (grid[row][col] == 2) {
-                    grid[row][col - 1] = 2;
-                } else if (grid[row][col - 1] == 2) {
-                    grid[row][col] = 2;
-                }
+                siteFull.union(toIndex(row, col), toIndex(row, col - 1));
             }
         }
-    }
+    }*/
 
     // is the site (row, col) open?
     public boolean isOpen(int row, int col) {
         checkIndex(row, col);
         //System.out.println(siteOpen.find(row * dimension + col + 1) + "  !");
-        return grid[row][col] >= 1;
+        return grid[row][col] == 1;
     }
 
     // is the site (row, col) full?
@@ -130,27 +110,12 @@ public class Percolation {
             return isOpen(0, 0);
         }
         if (isOpen(row, col)) {
-            if (grid[row][col] == 2) {
-                fill(row, col);
-                return true;
-            }
-            if (!checkAround(row, col)) {
-                return false;
-            }
-            for (int i = 0; i < dimension; i++) {
-                if (isOpen(0, i)) {
-                    if (siteFull.connected(row * dimension + col, i)) {
-                        grid[row][col] = 2;
-                        fill(row, col);
-                        return true;
-                    }
-                }
-            }
+            return siteOpen.connected(toIndex(row, col), dimension * dimension);
         }
         return false;
     }
 
-    private boolean checkAround(int row, int col) {
+    /**private boolean checkAround(int row, int col) {
         if (checkIndexNew(row + 1, col)) {
             if (isOpen(row + 1, col)) {
                 return true;
@@ -172,7 +137,7 @@ public class Percolation {
             }
         }
         return false;
-    }
+    }*/
 
     /**private boolean goToTop(int row, int col) {
         if (row == 0) {
@@ -202,24 +167,7 @@ public class Percolation {
         if (dimension == 1) {
             return isOpen(0, 0);
         }
-        for (int i = 0; i < dimension; i++) {
-            if (isOpen(dimension - 1, i)) {
-                if (grid[dimension - 1][i] == 2) {
-                    return true;
-                } else if (isFull(dimension - 1, i)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-        /**for (int i = 0; i < dimension; i++) {
-            if (isOpen(dimension - 1, i)) {
-                if (isOpen(dimension - 2, i)) {
-                    return isFull(dimension - 1, i);
-                }
-            }
-        }
-        return false;*/
+        return siteFull.connected(dimension * dimension, dimension * dimension + 1);
     }
 
     private boolean validIndex(int row, int col) {
