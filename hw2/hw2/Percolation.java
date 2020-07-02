@@ -131,39 +131,44 @@ public class Percolation {
         }
         if (isOpen(row, col)) {
             if (grid[row][col] == 2) {
-                if (row - 1 > 0 && isOpen(row - 1, col)) {
-                    fill(row - 1, col);
-                }
-                if (row + 1 <= dimension - 1 && isOpen(row + 1, col)) {
-                    fill(row + 1, col);
-                }
-                if (col - 1 > 0 && isOpen(row, col - 1)) {
-                    fill(row, col - 1);
-                }
-                if (col + 1 <= dimension - 1 && isOpen(row, col + 1)) {
-                    fill(row, col + 1);
-                }
+                fill(row, col);
                 return true;
+            }
+            if (!checkAround(row, col)) {
+                return false;
             }
             for (int i = 0; i < dimension; i++) {
                 if (isOpen(0, i)) {
                     if (siteFull.connected(row * dimension + col, i)) {
                         grid[row][col] = 2;
-                        if (row - 1 > 0 && isOpen(row - 1, col)) {
-                            fill(row - 1, col);
-                        }
-                        if (row + 1 <= dimension - 1 && isOpen(row + 1, col)) {
-                            fill(row + 1, col);
-                        }
-                        if (col - 1 > 0 && isOpen(row, col - 1)) {
-                            fill(row, col - 1);
-                        }
-                        if (col + 1 <= dimension - 1 && isOpen(row, col + 1)) {
-                            fill(row, col + 1);
-                        }
+                        fill(row, col);
                         return true;
                     }
                 }
+            }
+        }
+        return false;
+    }
+
+    private boolean checkAround(int row, int col) {
+        if (checkIndexNew(row + 1, col)) {
+            if (isOpen(row + 1, col)) {
+                return true;
+            }
+        }
+        if (checkIndexNew(row - 1, col)) {
+            if (!isOpen(row - 1, col)) {
+                return true;
+            }
+        }
+        if (checkIndexNew(row, col + 1)) {
+            if (isOpen(row, col + 1)) {
+                return true;
+            }
+        }
+        if (checkIndexNew(row, col - 1)) {
+            if (isOpen(row, col - 1)) {
+                return true;
             }
         }
         return false;
@@ -200,6 +205,8 @@ public class Percolation {
         for (int i = 0; i < dimension; i++) {
             if (isOpen(dimension - 1, i)) {
                 if (grid[dimension - 1][i] == 2) {
+                    return true;
+                } else if (isFull(dimension - 1, i)) {
                     return true;
                 }
             }
