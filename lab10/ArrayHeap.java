@@ -102,10 +102,10 @@ public class ArrayHeap<T> implements ExtrinsicPQ<T> {
      */
     private void swim(int index) {
         // Throws an exception if index is invalid. DON'T CHANGE THIS LINE.
-        validateSinkSwimArg(index);
         if (index == 1) {
             return;
         }
+        validateSinkSwimArg(index);
         if (contents[index].myPriority < contents[parentIndex(index)].myPriority) {
             swap(index, parentIndex(index));
             swim(parentIndex(index));
@@ -117,10 +117,10 @@ public class ArrayHeap<T> implements ExtrinsicPQ<T> {
      */
     private void sink(int index) {
         // Throws an exception if index is invalid. DON'T CHANGE THIS LINE.
-        validateSinkSwimArg(index);
         if (index > size / 2) {
             return;
         }
+        validateSinkSwimArg(index);
         int min = min(leftIndex(index), rightIndex(index));
         if (contents[index].myPriority > contents[min].myPriority) {
             swap(index, min);
@@ -194,9 +194,20 @@ public class ArrayHeap<T> implements ExtrinsicPQ<T> {
     }
 
     private void changeHelper(int index, T item, double priority) {
-        while (index <= size) {
+        if (index < 1 || index > size) {
+            return;
+        } else if (contents[index] == null) {
+            return;
+        }
+        if (index <= size) {
             if (contents[index].myItem.equals(item)) {
+                double pri = contents[index].myPriority;
                 contents[index].myPriority = priority;
+                if (priority > pri) {
+                    sink(index);
+                } else if (priority < pri) {
+                    swim(index);
+                }
             }
             changeHelper(index * 2, item, priority);
             changeHelper(index * 2 + 1, item, priority);
