@@ -12,7 +12,7 @@ import static org.junit.Assert.*;
  * in order to run the tests.
  */
 public class TestSolver {
-    public static class BoardPuzzleSolution {
+    /**public static class BoardPuzzleSolution {
         final String name;
         final Board board;
         final int numMoves;
@@ -21,7 +21,7 @@ public class TestSolver {
             board = b;
             numMoves = m;
         }
-    }
+    }*/
 
     public static class WordPuzzleSolution {
         final String start;
@@ -62,7 +62,7 @@ public class TestSolver {
         }
     }
 
-/* Uncomment once you've written Solver.
+    //Uncomment once you've written Solver.
     @Test(timeout = 10000)
     public void testWordPuzzles() {
         In in = new In("input/word_puzzles.txt");
@@ -79,7 +79,6 @@ public class TestSolver {
             assertEquals(errorMessage, wps.numMoves, s.moves());
         }
     }
- */
 
  /* Uncomment everything in this block once you've written Board.
      public static Board readBoard(String filename) {

@@ -117,21 +117,12 @@ public class Board implements WorldState {
         if (this == y) {
             return true;
         }
-        if (!y.getClass().equals(board.getClass())) {
+        if (y == null || !y.getClass().equals(getClass())) {
             return false;
         }
-        if (((int[][]) y).length != size) {
-            return false;
-        }
-        int[][] c = (int[][]) y;
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                if (board[to1D(i, j)] != c[i][j]) {
-                    return false;
-                }
-            }
-        }
-        return true;
+        Board that = (Board) y;
+        return size == that.size
+                && Arrays.equals(board, that.board);
     }
 
     @Override

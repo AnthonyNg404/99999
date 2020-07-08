@@ -6,7 +6,7 @@ import java.util.Comparator;
 
 public class Solver {
     private int move;
-    ArrayList<WorldState> solution = new ArrayList<>();
+    private ArrayList<WorldState> solution = new ArrayList<>();
 
     public Solver(WorldState initial) {
         Comparator<SearchNode> nodeComparator = new NodeComparator();
