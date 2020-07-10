@@ -8,6 +8,26 @@ import java.util.Map;
  * not draw the output correctly.
  */
 public class Rasterer {
+    private String[][] renderGrid;
+    private double rasterUlLon;
+    private double rasterUlLat;
+    private double rasterLrLon;
+    private double rasterLrLat;
+    private double rasterUlLon1;
+    private double rasterUlLat1;
+    private double rasterLrLon1;
+    private double rasterLrLat1;
+    private double w;
+    private double h;
+    private int depth;
+    private Boolean querySuccess = false;
+    private double LonDPP;
+    private double lonDPPTile;
+    private Map<String, Double> params1;
+    private int ulX;
+    private int ulY;
+    private int lrX;
+    private int lrY;
 
     public Rasterer() {
         // YOUR CODE HERE
@@ -42,11 +62,81 @@ public class Rasterer {
      *                    forget to set this to true on success! <br>
      */
     public Map<String, Object> getMapRaster(Map<String, Double> params) {
-        // System.out.println(params);
+        //System.out.println(params);
+        initialize(params);
+        getDepth();
+        getGrid();
         Map<String, Object> results = new HashMap<>();
-        System.out.println("Since you haven't implemented getMapRaster, nothing is displayed in "
-                           + "your browser.");
+        results.put("raster_ul_lon", rasterUlLon);
+        results.put("raster_ul_lat", rasterUlLat);
+        results.put("raster_lr_lon", rasterLrLon);
+        results.put("raster_lr_lat", rasterLrLat);
+        results.put("depth", depth);
+        results.put("render_grid", renderGrid);
+        results.put("query_success", querySuccess);
+        /**System.out.println("Since you haven't implemented getMapRaster, nothing is displayed in "
+                           + "your browser.");*/
         return results;
+    }
+
+    private void initialize(Map<String, Double> param) {
+        params1 = param;
+        rasterUlLon1 = params1.get("ullon");
+        rasterUlLat1 = params1.get("ullat");
+        rasterLrLon1 = params1.get("lrlon");
+        rasterLrLat1 = params1.get("lrlat");
+        w = params1.get("w");
+        h = params1.get("h");
+        depth = 0;
+        //LonDPP = MapServer.ROOT_ULLON - MapServer.ROOT_LRLON)
+        LonDPP = (rasterLrLon1 - rasterUlLon1) / w;
+    }
+
+    private void getDepth() {
+        int pix = MapServer.TILE_SIZE;
+        for (; depth < 7; pix *= 2) {
+            lonDPPTile = (MapServer.ROOT_LRLON - MapServer.ROOT_ULLON) / pix;
+            if (lonDPPTile > LonDPP) {
+                depth += 1;
+            } else {
+                break;
+            }
+        }
+    }
+
+    private void getGrid() {
+        double ulLonLen = (rasterUlLon1 - MapServer.ROOT_ULLON);
+        double ulLatLen = (MapServer.ROOT_ULLAT - rasterUlLat1);
+        double lrLonLen = (rasterLrLon1 - MapServer.ROOT_ULLON);
+        double lrLatLen = (MapServer.ROOT_ULLAT - rasterLrLat1);
+        //System.out.println(ulLonLen + "   " + ulLatLen);
+        //System.out.println(lrLonLen + "   " + lrLatLen);
+        double ulLonPre = ulLonLen / (MapServer.ROOT_LRLON - MapServer.ROOT_ULLON);
+        double ulLatPre = ulLatLen / (MapServer.ROOT_ULLAT - MapServer.ROOT_LRLAT);
+        double lrLonPre = lrLonLen / (MapServer.ROOT_LRLON - MapServer.ROOT_ULLON);
+        double lrLatPre = lrLatLen / (MapServer.ROOT_ULLAT - MapServer.ROOT_LRLAT);
+        //System.out.println(ulLonPre + "   " + ulLatPre);
+        //System.out.println(lrLonPre + "   " + lrLatPre);
+        double total = Math.pow(2, depth);
+        ulX = (int) (ulLonPre * total);
+        ulY = (int) (ulLatPre * total);
+        lrX = (int) (lrLonPre * total);
+        lrY = (int) (lrLatPre * total);
+        renderGrid = new String[lrY - ulY + 1][lrX - ulX + 1];
+        for (int Y = ulY; Y <= lrY; Y++) {
+            for (int X = ulX; X <= lrX; X++) {
+                renderGrid[Y - ulY][X - ulX] = "d" + depth + "_x" + X + "_y" + Y + ".png";
+            }
+        }
+        rasterUlLon = ulX / total
+                * (MapServer.ROOT_LRLON - MapServer.ROOT_ULLON) + MapServer.ROOT_ULLON;
+        rasterUlLat = MapServer.ROOT_ULLAT - ulY / total
+                * (MapServer.ROOT_ULLAT - MapServer.ROOT_LRLAT);
+        rasterLrLon = (lrX + 1) / total
+                * (MapServer.ROOT_LRLON - MapServer.ROOT_ULLON) + MapServer.ROOT_ULLON;
+        rasterLrLat = MapServer.ROOT_ULLAT - (lrY + 1) / total
+                * (MapServer.ROOT_ULLAT - MapServer.ROOT_LRLAT);
+        querySuccess = true;
     }
 
 }
