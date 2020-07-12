@@ -23,9 +23,9 @@ import java.util.ArrayList;
  * @author Alan Yao, Josh Hug
  */
 public class GraphDB {
-    private Map<Long, Node> nodes = new LinkedHashMap<>();
-    private Map<Long, Way> ways = new LinkedHashMap<>();
-    private Map<Long, Set<Long>> adj = new LinkedHashMap<>();
+    Map<Long, Node> nodes = new LinkedHashMap<>();
+    Map<Long, Way> ways = new LinkedHashMap<>();
+    Map<Long, Set<Long>> adj = new LinkedHashMap<>();
     /** Your instance variables for storing the graph. You should consider
      * creating helper classes, e.g. Node, Edge, etc. */
 
@@ -85,16 +85,8 @@ public class GraphDB {
         nodes.put(id, n);
     }
 
-    public void updateNode(long id, Node n) {
-        nodes.replace(id, n);
-    }
-
     public void addWay(long id, Way w) {
         ways.put(id, w);
-    }
-
-    public void updateWay(long id, Way w) {
-        ways.replace(id, w);
     }
 
     public void connects(long i, long j) {
