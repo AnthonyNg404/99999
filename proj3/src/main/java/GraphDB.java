@@ -1,5 +1,4 @@
 import org.xml.sax.SAXException;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -23,9 +22,9 @@ import java.util.ArrayList;
  * @author Alan Yao, Josh Hug
  */
 public class GraphDB {
-    private Map<Long, Node> nodes = new LinkedHashMap<>();
-    private Map<Long, Way> ways = new LinkedHashMap<>();
-    private Map<Long, Set<Long>> adj = new LinkedHashMap<>();
+    Map<Long, Node> nodes = new LinkedHashMap<>();
+    Map<Long, Way> ways = new LinkedHashMap<>();
+    Map<Long, Set<Long>> adj = new LinkedHashMap<>();
     /** Your instance variables for storing the graph. You should consider
      * creating helper classes, e.g. Node, Edge, etc. */
 
@@ -85,16 +84,8 @@ public class GraphDB {
         nodes.put(id, n);
     }
 
-    public void updateNode(long id, Node n) {
-        nodes.replace(id, n);
-    }
-
     public void addWay(long id, Way w) {
         ways.put(id, w);
-    }
-
-    public void updateWay(long id, Way w) {
-        ways.replace(id, w);
     }
 
     public void connects(long i, long j) {
@@ -141,8 +132,7 @@ public class GraphDB {
      */
     Iterable<Long> vertices() {
         //YOUR CODE HERE, this currently returns only an empty list.
-        Set<Long>  s = nodes.keySet();
-        return new ArrayList<>(s);
+        return nodes.keySet();
     }
 
     /**
@@ -151,8 +141,7 @@ public class GraphDB {
      * @return An iterable of the ids of the neighbors of v.
      */
     Iterable<Long> adjacent(long v) {
-        Set<Long> s = adj.get(v);
-        return new ArrayList<>(s);
+        return adj.get(v);
     }
 
     /**
@@ -199,7 +188,6 @@ public class GraphDB {
         double phi2 = Math.toRadians(latW);
         double lambda1 = Math.toRadians(lonV);
         double lambda2 = Math.toRadians(lonW);
-
         double y = Math.sin(lambda2 - lambda1) * Math.cos(phi2);
         double x = Math.cos(phi1) * Math.sin(phi2);
         x -= Math.sin(phi1) * Math.cos(phi2) * Math.cos(lambda2 - lambda1);
@@ -216,6 +204,10 @@ public class GraphDB {
         long id = 0;
         double dis = Double.POSITIVE_INFINITY;
         for (Node n : nodes.values()) {
+            /**if (Math.abs(n.lon - lon) > (MapServer.ROOT_LRLON - MapServer.ROOT_ULLON) / 16
+                    || Math.abs(n.lat - lat) > (MapServer.ROOT_ULLAT - MapServer.ROOT_LRLAT) / 16) {
+                continue;
+            }*/
             if (distance(lon, lat, n.lon, n.lat) < dis) {
                 dis = distance(lon, lat, n.lon, n.lat);
                 id = n.id;

@@ -34,8 +34,7 @@ public class Router {
 
         long st = g.closest(stlon, stlat);
         long dest = g.closest(destlon, destlat);
-        NodeComparator cmp = new NodeComparator(dest, g);
-        PriorityQueue<Node> pq = new PriorityQueue<>(cmp);
+        PriorityQueue<Node> pq = new PriorityQueue<>(new NodeComparator(dest, g));
         Set<Long> marked = new HashSet<>();
         //Map<Long, Long> route = new LinkedHashMap<>();
         //route.put(st, null);
@@ -60,16 +59,10 @@ public class Router {
             marked.add(temp.id);
         }
         List<Long> result = new LinkedList<>();
-        result = addResult(temp, result);
-        return result; // FIXME
-    }
-
-    private static List<Long> addResult(Node n, List<Long> l) {
-        if (n.parent != null) {
-            l = addResult(n.parent, l);
+        for (Node n = temp; n != null; n = n.parent) {
+            result.add(0, n.id);
         }
-        l.add(n.id);
-        return l;
+        return result; // FIXME
     }
 
     private static class NodeComparator implements Comparator<Node> {
@@ -106,8 +99,6 @@ public class Router {
         }
     }
 
-
-
     /**private static class NodeComparator implements Comparator<Long> {
         private double stlon;
         private double stlat;
@@ -129,8 +120,6 @@ public class Router {
             return Double.compare(d1, d2);
         }
     }*/
-
-
 
     /**
      * Create the list of directions corresponding to a route on the graph.
