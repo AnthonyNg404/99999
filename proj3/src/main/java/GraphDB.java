@@ -40,7 +40,10 @@ public class GraphDB {
             SAXParserFactory factory = SAXParserFactory.newInstance();
             SAXParser saxParser = factory.newSAXParser();
             GraphBuildingHandler gbh = new GraphBuildingHandler(this);
+            long startTime =  System.currentTimeMillis();
             saxParser.parse(inputStream, gbh);
+            long endTime =  System.currentTimeMillis();
+            System.out.println((endTime - startTime) + "     Graph time");
         } catch (ParserConfigurationException | SAXException | IOException e) {
             e.printStackTrace();
         }

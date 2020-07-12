@@ -32,6 +32,7 @@ public class Router {
     public static List<Long> shortestPath(GraphDB g, double stlon, double stlat,
                                           double destlon, double destlat) {
 
+        long startTime =  System.currentTimeMillis();
         long st = g.closest(stlon, stlat);
         long dest = g.closest(destlon, destlat);
         PriorityQueue<Node> pq = new PriorityQueue<>(new NodeComparator(dest, g));
@@ -64,6 +65,8 @@ public class Router {
         for (Node n = temp; n != null; n = n.parent) {
             result.add(0, n.id);
         }
+        long endTime =  System.currentTimeMillis();
+        System.out.println((endTime - startTime) + "     router time");
         return result; // FIXME
     }
 
