@@ -32,18 +32,15 @@ public class Router {
     public static List<Long> shortestPath(GraphDB g, double stlon, double stlat,
                                           double destlon, double destlat) {
 
+
         long st = g.closest(stlon, stlat);
         long dest = g.closest(destlon, destlat);
         PriorityQueue<Node> pq = new PriorityQueue<>(new NodeComparator(dest, g));
         Set<Long> marked = new HashSet<>();
-        //Map<Long, Long> route = new LinkedHashMap<>();
-        //route.put(st, null);
         pq.add(new Node(st, null, 0));
         marked.add(st);
         Node temp = pq.poll();
         while (temp.id != dest) {
-            //System.out.println(temp.id + "  node + parent  " + temp.parent);
-            //System.out.println(temp + "    temp");
             for (long n : g.adjacent(temp.id)) {
                 if (temp.parent != null) {
                     if (temp.parent.id == n) {
@@ -66,15 +63,11 @@ public class Router {
     }
 
     private static class NodeComparator implements Comparator<Node> {
-        //private double stlon;
-        //private double stlat;
         private double destlon;
         private double destlat;
         private GraphDB g;
 
         NodeComparator(long dest, GraphDB g) {
-            //this.stlon = g.lon(st);
-            //this.stlat = g.lat(st);
             this.destlon = g.lon(dest);
             this.destlat = g.lat(dest);
             this.g = g;
@@ -98,28 +91,6 @@ public class Router {
             this.mileage = mileage;
         }
     }
-
-    /**private static class NodeComparator implements Comparator<Long> {
-        private double stlon;
-        private double stlat;
-        private double destlon;
-        private double destlat;
-        private GraphDB g;
-        NodeComparator(long st, long dest, GraphDB g) {
-            this.stlon = g.lon(st);
-            this.stlat = g.lat(st);
-            this.destlon = g.lon(dest);
-            this.destlat = g.lat(dest);
-            this.g = g;
-        }
-        public int compare(Long n1, Long n2) {
-            double d1 = GraphDB.distance(g.lon(n1), g.lat(n1), stlon, stlat)
-                    + GraphDB.distance(g.lon(n1), g.lat(n1), destlon, destlat);
-            double d2 = GraphDB.distance(g.lon(n2), g.lat(n2), stlon, stlat)
-                    + GraphDB.distance(g.lon(n2), g.lat(n2), destlon, destlat);
-            return Double.compare(d1, d2);
-        }
-    }*/
 
     /**
      * Create the list of directions corresponding to a route on the graph.

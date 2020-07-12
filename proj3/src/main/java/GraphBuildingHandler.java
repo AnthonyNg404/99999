@@ -67,6 +67,7 @@ public class GraphBuildingHandler extends DefaultHandler {
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes)
             throws SAXException {
+        long startTime =  System.currentTimeMillis();
         /* Some example code on how you might begin to parse XML files. */
         if (qName.equals("node")) {
             /* We encountered a new <node...> tag. */

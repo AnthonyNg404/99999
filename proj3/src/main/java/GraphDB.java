@@ -24,7 +24,6 @@ import java.util.ArrayList;
 public class GraphDB {
     Map<Long, Node> nodes = new LinkedHashMap<>();
     Map<Long, Way> ways = new LinkedHashMap<>();
-    Map<Long, Set<Long>> adj = new LinkedHashMap<>();
     /** Your instance variables for storing the graph. You should consider
      * creating helper classes, e.g. Node, Edge, etc. */
 
@@ -60,6 +59,7 @@ public class GraphDB {
         String name;
         String amenity;
         String street;
+        ArrayList<Long> adjNodes;
         Node(long id, double lon, double lat) {
             this.id = id;
             this.lon = lon;
@@ -89,14 +89,14 @@ public class GraphDB {
     }
 
     public void connects(long i, long j) {
-        if (!adj.containsKey(i)) {
-            adj.put(i, new LinkedHashSet<>());
+        if (nodes.get(i).adjNodes == null) {
+            nodes.get(i).adjNodes = new ArrayList<>();
         }
-        adj.get(i).add(j);
-        if (!adj.containsKey(j)) {
-            adj.put(j, new LinkedHashSet<>());
+        nodes.get(i).adjNodes.add(j);
+        if (nodes.get(j).adjNodes == null) {
+            nodes.get(j).adjNodes = new ArrayList<>();
         }
-        adj.get(j).add(i);
+        nodes.get(j).adjNodes.add(i);
     }
 
     /**
@@ -116,9 +116,9 @@ public class GraphDB {
     private void clean() {
         // TO*DO: Your code here.
         Set<Long> toRemove = new LinkedHashSet<>();
-        for (long i : nodes.keySet()) {
-            if (!adj.containsKey(i)) {
-                toRemove.add(i);
+        for (long n : nodes.keySet()) {
+            if (nodes.get(n).adjNodes == null) {
+                toRemove.add(n);
             }
         }
         for (long i : toRemove) {
@@ -141,7 +141,7 @@ public class GraphDB {
      * @return An iterable of the ids of the neighbors of v.
      */
     Iterable<Long> adjacent(long v) {
-        return adj.get(v);
+        return nodes.get(v).adjNodes;
     }
 
     /**
