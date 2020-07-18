@@ -1,12 +1,9 @@
 package creatures;
-import huglife.Creature;
-import huglife.Direction;
-import huglife.Action;
-import huglife.Occupant;
-import huglife.HugLifeUtils;
-import java.awt.Color;
+import huglife.*;
+
+import java.awt.*;
+import java.util.ArrayList;
 import java.util.Map;
-import java.util.List;
 
 /** An implementation of a motile pacifist photosynthesizer.
  *  @author Josh Hug
@@ -42,7 +39,9 @@ public class Plip extends Creature {
      *  that you get this exactly correct.
      */
     public Color color() {
-        g = 63;
+        g = (int) Math.round(63 + (255 - 63) * energy / 2);
+        r = 99;
+        b = 76;
         return color(r, g, b);
     }
 
@@ -55,11 +54,16 @@ public class Plip extends Creature {
      *  private static final variable. This is not required for this lab.
      */
     public void move() {
+        this.energy -= 0.15;
     }
 
 
     /** Plips gain 0.2 energy when staying due to photosynthesis. */
     public void stay() {
+        this.energy += 0.2;
+        if (this.energy > 2) {
+            this.energy = 2;
+        }
     }
 
     /** Plips and their offspring each get 50% of the energy, with none
@@ -67,7 +71,14 @@ public class Plip extends Creature {
      *  Plip.
      */
     public Plip replicate() {
-        return this;
+        Plip n = new Plip(energy / 2);
+        n.color();
+        this.energy /= 2;
+        return n;
+    }
+
+    public String name() {
+        return "plip";
     }
 
     /** Plips take exactly the following actions based on NEIGHBORS:
@@ -81,7 +92,36 @@ public class Plip extends Creature {
      *  for an example to follow.
      */
     public Action chooseAction(Map<Direction, Occupant> neighbors) {
+        if (this.energy >= 1) {
+            ArrayList<Direction> dir = new ArrayList<>();
+            for (Direction d : neighbors.keySet()) {
+                if (neighbors.get(d).name().equals("empty")) {
+                    dir.add(d);
+                }
+            }
+            if (dir.size() > 0) {
+                Direction e = dir.get((int) Math.floor(Math.random() * dir.size()));
+                return new Action(Action.ActionType.REPLICATE, e);
+            }
+        }
+        for (Direction d : neighbors.keySet()) {
+            if (neighbors.get(d).name().equals("clorus")) {
+                if (Math.random() > 0.5) {
+                    ArrayList<Direction> dir1 = new ArrayList<>();
+                    for (Direction c : neighbors.keySet()) {
+                        if (neighbors.get(c).name().equals("empty")) {
+                            dir1.add(c);
+                        }
+                    }
+                    if (dir1.size() > 0) {
+                        Direction e = dir1.get((int) Math.floor(Math.random() * dir1.size()));
+                        return new Action(Action.ActionType.MOVE, e);
+                    }
+                } else {
+                    break;
+                }
+            }
+        }
         return new Action(Action.ActionType.STAY);
     }
-
 }
