@@ -1,6 +1,3 @@
-/**
-
-
 import edu.princeton.cs.algs4.Picture;
 import java.util.ArrayList;
 
@@ -23,7 +20,9 @@ public class SeamCarver {
                 if (y == 0) {
                     energy.add(energy(x, y));
                 } else {
-                    if (x == 0) {
+                    if (pic.width() == 1) {
+                        energy.add(energy(x, y) + energy.get(xyToInt(x, y - 1)));
+                    } else if (x == 0) {
                         double a = Math.min(energy.get(xyToInt(x, y - 1)),
                                 energy.get(xyToInt(x + 1, y - 1)));
                         energy.add(energy(x, y) + a);
@@ -42,13 +41,13 @@ public class SeamCarver {
             }
             //System.out.println("     energy sum");
         }
-        /**for (int y = 0; y < pic.height(); y++) {
+        /*for (int y = 0; y < pic.height(); y++) {
             for (int x = 0; x < pic.width(); x++) {
                 energy1.add(energy(x, y));
                 //System.out.print(energy1.get(xyToInt(x, y)) + "    ");
             }
             //System.out.println("     energy");
-        }*//**
+        }*/
     }
 
     // current picture
@@ -74,10 +73,37 @@ public class SeamCarver {
         if (y < 0 || y >= pic.height()) {
             throw new java.lang.IndexOutOfBoundsException();
         }
-        int xL = Math.floorMod(x - 1, width());
-        int xR = Math.floorMod(x + 1, width());
-        int yU = Math.floorMod(y - 1, height());
-        int yD = Math.floorMod(y + 1, height());
+        int xL;
+        int xR;
+        int yU;
+        int yD;
+        if (x == 0) {
+            xL = pic.width() - 1;
+            xR = x + 1;
+        } else if (x == pic.width() - 1) {
+            xL = x - 1;
+            xR = 0;
+        } else {
+            xL = x - 1;
+            xR = x + 1;
+        }
+        if (y == 0) {
+            yU = pic.height() - 1;
+            yD = y + 1;
+        } else if (y == pic.height() - 1) {
+            yU = y - 1;
+            yD = 0;
+        } else {
+            yU = y - 1;
+            yD = y + 1;
+        }
+        if (pic.height() == 1 && pic.width() == 1) {
+            return 0;
+        } else if (pic.height() == 1) {
+            return getSum(xL, y, xR, y);
+        } else if (pic.width() == 1) {
+            return getSum(x, yU, x, yD);
+        }
         return getSum(xL, y, xR, y) + getSum(x, yU, x, yD);
     }
 
@@ -109,14 +135,14 @@ public class SeamCarver {
                 p.set(col, row, pic.get(row, col));
             }
         }
-        pic = new Picture(p);
+        pic = p;
         energy.clear();
         //energy1.clear();
         energySum();
         int[] b = findVerticalSeam();
-        pic = new Picture(backup);
+        pic = backup;
         energy.clear();
-        /**energy1.clear();*//**
+        //energy1.clear();
         energySum();
         return b;
     }
@@ -148,17 +174,15 @@ public class SeamCarver {
                 }
             }
         }
-        /**
-         * for (int c : a) {
+        /* for (int c : a) {
             System.out.print(c + "   ");
-        }*//**
-        pic = new Picture(pic);
+        }*/
         return a;
     }
 
     // remove horizontal seam from picture.
     public void removeHorizontalSeam(int[] seam) {
-        if (seam.length > pic.width() || seam.length == 0) {
+        if (seam.length > pic.height() || seam.length == 0) {
             throw new java.lang.IllegalArgumentException();
         }
         for (int i = 0; i < seam.length - 1; i++) {
@@ -177,13 +201,13 @@ public class SeamCarver {
                 p.set(x, y, pic.get(x, y + i));
             }
         }
-        pic = new Picture(p);
+        pic = p;
         energySum();
     }
 
     // remove vertical seam from picture.
     public void removeVerticalSeam(int[] seam) {
-        if (seam.length > pic.height() || seam.length == 0) {
+        if (seam.length > pic.width() || seam.length == 0) {
             throw new java.lang.IllegalArgumentException();
         }
         for (int i = 0; i < seam.length - 1; i++) {
@@ -202,14 +226,14 @@ public class SeamCarver {
                 p.set(x, y, pic.get(x + i, y));
             }
         }
-        pic = new Picture(p);
+        pic = p;
         energySum();
     }
-}*/
+}
 
 
 
-import edu.princeton.cs.algs4.Picture;
+/**import edu.princeton.cs.algs4.Picture;
 
 public class SeamCarver {
     private Picture picture;
@@ -339,33 +363,27 @@ public class SeamCarver {
         return findVerticalSeam(picture);
     }
 
-    private int[]
-        findVerticalSeam(Picture pic) {
-
-        double[][] energy = new double[pic.width()][pic.height()];
-        double[][] cost = new double[pic.width()][pic.height()];
-        int[][] prevPixel = new int[pic.width()][pic.height()];
-        int[] result = new int[pic.height()];
-
-        if (pic.width() == 1) {
-            for (int i = 0; i < pic.height(); i++) {
+    private int[] findVerticalSeam(Picture p) {
+        double[][] energy = new double[p.width()][p.height()];
+        double[][] cost = new double[p.width()][p.height()];
+        int[][] prevPixel = new int[p.width()][p.height()];
+        int[] result = new int[p.height()];
+        if (p.width() == 1) {
+            for (int i = 0; i < p.height(); i++) {
                 result[i] = 0;
             }
             return result;
         }
-
-        for (int i = 0; i < pic.width(); i++) {
-            for (int j = 0; j < pic.height(); j++) {
-                energy[i][j] = energy(pic, i, j);
+        for (int i = 0; i < p.width(); i++) {
+            for (int j = 0; j < p.height(); j++) {
+                energy[i][j] = energy(p, i, j);
             }
         }
-
-        for (int i = 0; i < pic.width(); i++) {
+        for (int i = 0; i < p.width(); i++) {
             cost[i][0] = energy[i][0];
         }
-
-        for (int j = 1; j < pic.height(); j++) {
-            for (int i = 0; i < pic.width(); i++) {
+        for (int j = 1; j < p.height(); j++) {
+            for (int i = 0; i < p.width(); i++) {
                 if (i == 0) {
                     if (cost[i][j - 1] <= cost[i + 1][j - 1]) {
                         cost[i][j] = cost[i][j - 1] + energy[i][j];
@@ -374,7 +392,7 @@ public class SeamCarver {
                         cost[i][j] = cost[i + 1][j - 1] + energy[i][j];
                         prevPixel[i][j] = i + 1;
                     }
-                } else if (i == pic.width() - 1) {
+                } else if (i == p.width() - 1) {
                     if (cost[i - 1][j - 1] <= cost[i][j - 1]) {
                         cost[i][j] = cost[i - 1][j - 1] + energy[i][j];
                         prevPixel[i][j] = i - 1;
@@ -403,22 +421,18 @@ public class SeamCarver {
                 }
             }
         }
-
-        double minCost = cost[0][pic.height() - 1];
+        double minCost = cost[0][p.height() - 1];
         int index = 0;
-        for (int i = 0; i < pic.width(); i++) {
-            if (cost[i][pic.height() - 1] < minCost) {
-                minCost = cost[i][pic.height() - 1];
+        for (int i = 0; i < p.width(); i++) {
+            if (cost[i][p.height() - 1] < minCost) {
+                minCost = cost[i][p.height() - 1];
                 index = i;
             }
         }
-
-        result[pic.height() - 1] = index;
-
-        for (int k = pic.height() - 1; k > 0; k--) {
+        result[p.height() - 1] = index;
+        for (int k = p.height() - 1; k > 0; k--) {
             result[k - 1] = prevPixel[result[k]][k];
         }
-
         return result;
     }
 
@@ -431,4 +445,4 @@ public class SeamCarver {
     public void removeVerticalSeam(int[] seam) {
         picture = SeamRemover.removeVerticalSeam(picture, seam);
     }
-}
+}*/
