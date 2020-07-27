@@ -4,11 +4,11 @@ import java.util.ArrayList;
 public class SeamCarver {
 
     private Picture pic;
-    ArrayList<Double> energy;
+    private ArrayList<Double> energy;
     //ArrayList<Double> energy1;
 
     public SeamCarver(Picture picture) {
-        pic = picture;
+        pic = new Picture(picture);
         energy = new ArrayList<>(pic.width() * pic.height());
         //energy1 = new ArrayList<>(pic.width() * pic.height());
         energySum();
@@ -21,13 +21,16 @@ public class SeamCarver {
                     energy.add(energy(x, y));
                 } else {
                     if (x == 0) {
-                        double a = Math.min(energy.get(xyToInt(x, y - 1)), energy.get(xyToInt(x + 1, y - 1)));
+                        double a = Math.min(energy.get(xyToInt(x, y - 1)),
+                                energy.get(xyToInt(x + 1, y - 1)));
                         energy.add(energy(x, y) + a);
                     } else if (x == pic.width() - 1) {
-                        double b = Math.min(energy.get(xyToInt(x, y - 1)), energy.get(xyToInt(x - 1, y - 1)));
+                        double b = Math.min(energy.get(xyToInt(x, y - 1)),
+                                energy.get(xyToInt(x - 1, y - 1)));
                         energy.add(energy(x, y) + b);
                     } else {
-                        double c = Math.min(energy.get(xyToInt(x, y - 1)), energy.get(xyToInt(x - 1, y - 1)));
+                        double c = Math.min(energy.get(xyToInt(x, y - 1)),
+                                energy.get(xyToInt(x - 1, y - 1)));
                         double d = Math.min(energy.get(xyToInt(x + 1, y - 1)), c);
                         energy.add(energy(x, y) + d);
                     }
@@ -62,6 +65,12 @@ public class SeamCarver {
 
     // energy of pixel at column x and row y
     public double energy(int x, int y) {
+        if (x < 0 || x > pic.width() - 1) {
+            throw new java.lang.IndexOutOfBoundsException();
+        }
+        if (y < 0 || y > pic.height() - 1) {
+            throw new java.lang.IndexOutOfBoundsException();
+        }
         int xL = Math.floorMod(x - 1, width());
         int xR = Math.floorMod(x + 1, width());
         int yU = Math.floorMod(y - 1, height());
@@ -90,24 +99,19 @@ public class SeamCarver {
 
     // sequence of indices for horizontal seam
     public int[] findHorizontalSeam() {
-        Picture backup = new Picture(pic.width(), pic.height());
-        for (int col = 0; col < pic.width(); col++) {
-            for (int row = 0; row < pic.height(); row++) {
-                backup.set(col, row, pic.get(col, row));
-            }
-        }
+        Picture backup = new Picture(pic);
         Picture p = new Picture(pic.height(), pic.width());
         for (int col = 0; col < p.width(); col++) {
             for (int row = 0; row < p.height(); row++) {
                 p.set(col, row, pic.get(row, col));
             }
         }
-        pic = p;
+        pic = new Picture(p);
         energy.clear();
         //energy1.clear();
         energySum();
         int[] b = findVerticalSeam();
-        pic = backup;
+        pic = new Picture(backup);
         energy.clear();
         /**energy1.clear();*/
         energySum();
@@ -153,9 +157,17 @@ public class SeamCarver {
 
     /** remove horizontal seam from picture.
      *
-     * @param seam
+     * @param seam a
      */
     public void removeHorizontalSeam(int[] seam) {
+        if (seam.length > pic.width() || seam.length == 0) {
+            throw new java.lang.IllegalArgumentException();
+        }
+        for (int i = 0; i < seam.length - 1; i++) {
+            if (Math.abs(seam[i] - seam[i + 1]) > 1) {
+                throw new java.lang.IllegalArgumentException();
+            }
+        }
         Picture p = new Picture(pic.width(), pic.height() - 1);
         for (int x = 0; x < pic.width(); x++) {
             int i = 0;
@@ -167,7 +179,7 @@ public class SeamCarver {
                 p.set(x, y, pic.get(x, y + i));
             }
         }
-        pic = p;
+        pic = new Picture(p);
         energySum();
     }
 
@@ -176,6 +188,14 @@ public class SeamCarver {
      * @param seam a
      */
     public void removeVerticalSeam(int[] seam) {
+        if (seam.length > pic.height() || seam.length == 0) {
+            throw new java.lang.IllegalArgumentException();
+        }
+        for (int i = 0; i < seam.length - 1; i++) {
+            if (Math.abs(seam[i] - seam[i + 1]) > 1) {
+                throw new java.lang.IllegalArgumentException();
+            }
+        }
         Picture p = new Picture(pic.width() - 1, pic.height());
         for (int y = 0; y < pic.height(); y++) {
             int i = 0;
@@ -187,7 +207,7 @@ public class SeamCarver {
                 p.set(x, y, pic.get(x + i, y));
             }
         }
-        pic = p;
+        pic = new Picture(p);
         energySum();
     }
 }
