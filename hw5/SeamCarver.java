@@ -182,7 +182,7 @@ public class SeamCarver {
 
     // remove horizontal seam from picture.
     public void removeHorizontalSeam(int[] seam) {
-        if (seam.length > pic.height() || seam.length == 0) {
+        if (seam.length > pic.width() || seam.length == 0) {
             throw new java.lang.IllegalArgumentException();
         }
         for (int i = 0; i < seam.length - 1; i++) {
@@ -202,12 +202,13 @@ public class SeamCarver {
             }
         }
         pic = p;
+        energy = new ArrayList<>(pic.width() * pic.height());
         energySum();
     }
 
     // remove vertical seam from picture.
     public void removeVerticalSeam(int[] seam) {
-        if (seam.length > pic.width() || seam.length == 0) {
+        if (seam.length > pic.height() || seam.length == 0) {
             throw new java.lang.IllegalArgumentException();
         }
         for (int i = 0; i < seam.length - 1; i++) {
@@ -227,6 +228,7 @@ public class SeamCarver {
             }
         }
         pic = p;
+        energy = new ArrayList<>(pic.width() * pic.height());
         energySum();
     }
 }
