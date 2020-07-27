@@ -339,7 +339,9 @@ public class SeamCarver {
         return findVerticalSeam(picture);
     }
 
-    private int[] findVerticalSeam(Picture pic) {
+    private int[]
+        findVerticalSeam(Picture pic) {
+
         double[][] energy = new double[pic.width()][pic.height()];
         double[][] cost = new double[pic.width()][pic.height()];
         int[][] prevPixel = new int[pic.width()][pic.height()];
