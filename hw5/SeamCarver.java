@@ -20,7 +20,9 @@ public class SeamCarver {
                 if (y == 0) {
                     energy.add(energy(x, y));
                 } else {
-                    if (x == 0) {
+                    if (pic.width() == 1) {
+                        energy.add(energy(x, y) + energy.get(xyToInt(x, y - 1)));
+                    } else if (x == 0) {
                         double a = Math.min(energy.get(xyToInt(x, y - 1)),
                                 energy.get(xyToInt(x + 1, y - 1)));
                         energy.add(energy(x, y) + a);
@@ -71,10 +73,37 @@ public class SeamCarver {
         if (y < 0 || y >= pic.height()) {
             throw new java.lang.IndexOutOfBoundsException();
         }
-        int xL = Math.floorMod(x - 1, width());
-        int xR = Math.floorMod(x + 1, width());
-        int yU = Math.floorMod(y - 1, height());
-        int yD = Math.floorMod(y + 1, height());
+        int xL;
+        int xR;
+        int yU;
+        int yD;
+        if (x == 0) {
+            xL = pic.width() - 1;
+            xR = x + 1;
+        } else if (x == pic.width() - 1) {
+            xL = x - 1;
+            xR = 0;
+        } else {
+            xL = x - 1;
+            xR = x + 1;
+        }
+        if (y == 0) {
+            yU = pic.height() - 1;
+            yD = y + 1;
+        } else if (y == pic.height() - 1) {
+            yU = y - 1;
+            yD = 0;
+        } else {
+            yU = y - 1;
+            yD = y + 1;
+        }
+        if (pic.height() == 1 && pic.width() == 1) {
+            return 0;
+        } else if (pic.height() == 1) {
+            return getSum(xL, y, xR, y);
+        } else if (pic.width() == 1) {
+            return getSum(x, yU, x, yD);
+        }
         return getSum(xL, y, xR, y) + getSum(x, yU, x, yD);
     }
 
