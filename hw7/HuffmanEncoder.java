@@ -1,10 +1,10 @@
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 
 public class HuffmanEncoder {
+
     public static Map<Character, Integer> buildFrequencyTable(char[] inputSymbols) {
         Map<Character, Integer> map = new HashMap<>();
         for (char c : inputSymbols) {
@@ -17,7 +17,7 @@ public class HuffmanEncoder {
         return map;
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         /*In text = new In("C:\\Users\\David\\Desktop\\61B\\hw7\\watermelonsugar.txt");
         In text1 = new In("C:\\Users\\David\\Desktop\\61B\\hw7\\watermelonsugar.txt");
         int count = 0;
